@@ -4,11 +4,10 @@ LABEL maintainer="Kritika Garg <@kritikagarg7>"
 
 WORKDIR /app
 
-COPY /echoserver/ /app/
+COPY . /app/
 
 EXPOSE 80
 
-RUN chmod a+x /echoserver/echoserver.py
+RUN chmod a+x echoserver.py
 
-ENTRYPOINT ["./echoserver/echoserver.py"]
-#ENTRYPOINT ["./echoserver.py"]
+ENTRYPOINT ["./echoserver.py"]
