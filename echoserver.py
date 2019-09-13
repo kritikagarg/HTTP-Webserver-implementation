@@ -10,13 +10,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 	s.listen()
 	print("Listening on " + HOST + ":" + str(PORT))
 
-	client_host,client_port = s.accept()
-	with client_host:
-		print('Connected by', client_port)
-		while True:
-			msg=client_host.recv(1024)   
-			if not msg:
-				break
-			client_host.sendall(msg)
+	while True:
+		client_host,client_port = s.accept()
+		with client_host:
+			print('Connected by', client_port)
+			while True:
+				msg=client_host.recv(1024)   
+				if not msg:
+					break
+				client_host.sendall(msg)
 
 
