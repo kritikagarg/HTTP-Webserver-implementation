@@ -2,6 +2,8 @@ FROM python:3.6
 
 LABEL maintainer="Kritika Garg <@kritikagarg7>"
 
+ENV  PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 COPY . /app/
