@@ -9,7 +9,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 	s.bind((HOST,PORT))
 	s.listen()
 	print("Listening on " + HOST + ":" + str(PORT))
-	s.setblocking(False)
 
 	client_host,client_port = s.accept()
 	with client_host:
