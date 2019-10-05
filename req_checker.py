@@ -8,10 +8,23 @@ import os
 import os.path 
 
 
+virtual_uri="/.well-known/access.log"
+log_path="./logs/access.log"
+
 def load_yaml():
 	file=open('check.yaml','r')
 	main_dict= yaml.safe_load(file)
 	return main_dict
+
+def yaml_dump(log_string):
+	file=open(log_path,'w')
+	yaml.dump(log_string, file)
+
+def check_log_path(path):
+	if path==virtual_uri:
+		path= log_path
+	return path
+
 
 #CHECK IF Header have any trailing spaces or other discrepancies    
 ##send 200 code at last
@@ -53,8 +66,6 @@ def check_version(req):
 		print("invalid version")	
 	return sc
 
-
-
 def ext_path(uri):
 	path = urlparse(uri).path
 	return path
@@ -62,12 +73,12 @@ def ext_path(uri):
 def get_content(req):
 	uri=req[0][1]
 	path=ext_path(uri)
+	path=check_log_path(path)
 	#print(path)
 	#global content
 	#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
 	content=docroot+path
 	return content
-
 
 def check_valid_path(req):
 	content=get_content(req)

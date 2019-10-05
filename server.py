@@ -26,16 +26,13 @@ if len(sys.argv) > 2:
 	PORT = int(sys.argv[2])
 
 #________________Logs______________________
-#def yaml_dump(log_string):
-#	file=open('.well-known/access.log','w')
-#	yaml.dump(data, file)
 
-#def func_log(req, req_line, sc):
-#	try:	
-#		ip=req[1][1].split(":")[1]
-#	except:
-#		ip='x'	
-#	return f"{ip} {Date} {req_line} {sc}"
+def func_log(req, req_line, sc):
+	try:	
+		ip=req[1][1].split(":")[1]
+	except:
+		ip='x'	
+	return f"{ip} {Date} {req_line} {sc}"
 
 
 #____________________________________RESPONSE____________________________________
@@ -85,12 +82,12 @@ def response_handler(sc, req, orignal_msg):
 		payload=send_payload(method, content, orignal_msg)
 
 		if method=="TRACE":
-			content_type="message/http"           ##change this later
+			content_type="message/http"           ##CH
 		else:
 			try:	
 				content_type=mime_support[extension]
 			except:
-				content_type="application/octet-stream"   #Deafault 
+				content_type="application/octet-stream"   #Default 
 			
 		content_length= str(os.path.getsize(content))
 		last_modified= str(time.ctime(os.path.getmtime(content))) 
@@ -142,7 +139,7 @@ def req_handler(data):
 	req,req_line=request_parser(data)
 	req,sc=req_checker.check_req_line(req)
 	res=response_handler(sc,req,orignal_msg)
-	#log_string= func_log(req, req_line,sc)
+	log_string= func_log(req, req_line,sc)
 	return res,log_string
 
 if __name__ == "__main__":
@@ -173,7 +170,7 @@ if __name__ == "__main__":
 			pass
 		data = b"".join(data)
 		res,log_string=req_handler(data)
-#		yaml_dump(log_string)
+		req_checker.yaml_dump(log_string)
 		conn.sendall(res)
 		conn.close()
 		#try:
