@@ -121,7 +121,7 @@ docroot= main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)
 virtual_uri="/.well-known/access.log"
 log_path=docroot+"/logs/access.log"
-log_path = os.getenv(LogPath, log_path)
+log_path = os.getenv("LogPath", log_path)
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 
