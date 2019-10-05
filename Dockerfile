@@ -5,6 +5,8 @@ LABEL maintainer="Kritika Garg <@kritikagarg7>"
 ENV  PYTHONUNBUFFERED=1
 ENV  DOCROOT=/var/www/cs531server
 
+ENV  LogPath=$DOCROOT/logs/access.log
+
 ADD  sample/* $DOCROOT/
 
 WORKDIR /app
