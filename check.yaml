@@ -1,0 +1,93 @@
+Root_DIR: /home/kgarg/classwork/fall19/cs531
+
+methods:
+ GET:
+  respbody: OK_response_body
+  payload: True
+  echo: False
+ HEAD:
+  respbody: OK_response_body
+  payload: False
+  echo: False
+ OPTIONS:
+  respbody: OK_response_body
+  payload: False
+  echo: False 
+ TRACE:
+  respbody: OK_response_body
+  payload: True
+  echo: True 
+
+reqheaders:
+- host
+- connection
+- user-agent
+
+status_code:
+ 200: OK
+ 400: Bad Request
+ 403: Forbidden
+ 404: Not Found
+ 500: Internal Server Error
+ 501: Not Implemented
+ 505: HTTP Version Not Supported
+
+clear_code:
+- 200
+
+error_code:
+- 400
+- 403
+- 404
+- 500
+- 501
+- 505
+
+MimeTypes:
+ txt: text/plain
+ text: text/plain
+ conf: text/plain
+ def: text/plain
+ list: text/plain
+ log: text/plain
+ in: text/plain
+ html: text/html
+ htm: text/html
+ xml: text/xml
+ png: image/png
+ jpeg: image/jpeg
+ jpg: image/jpeg 
+ jpe: image/jpeg
+ gif: image/giapplication/octet-streamf
+ pdf: application/pdf
+ ppt: application/vnd.ms-powerpoint
+ pps: application/vnd.ms-powerpoint
+ pot: application/vnd.ms-powerpoint
+ ppam: application/vnd.ms-powerpoint.addin.macroenabled.12
+ pptm: application/vnd.ms-powerpoint.presentation.macroenabled.12
+ sldm: application/vnd.ms-powerpoint.slide.macroenabled.12
+ ppsm: application/vnd.ms-powerpoint.slideshow.macroenabled.12
+ potm: application/vnd.ms-powerpoint.template.macroenabled.12
+ docm: application/vnd.ms-word.document.macroenabled.12
+ dotm: application/vnd.ms-word.template.macroenabled.12
+ bin: application/octet-stream
+ dms: application/octet-stream
+ lrf: application/octet-stream
+ mar: application/octet-stream
+ so: application/octet-stream
+ dist: application/octet-stream
+ distz: application/octet-stream
+ pkg: application/octet-stream
+ bpk: application/octet-stream
+ dump: application/octet-stream
+ elc: application/octet-stream
+ deploy: application/octet-stream
+ N/A: message/http
+
+Image:
+ png: image/png
+ jpeg: image/jpeg
+ jpg: image/jpeg 
+ jpe: image/jpeg
+ gif: image/giapplication/octet-streamf
+
