@@ -16,7 +16,7 @@ now = datetime.datetime.now()
 Date = str(format_date_time(mktime(now.timetuple())))
 
 HOST= '0.0.0.0'
-PORT= 8080
+PORT= 80
 Server="kitkat.0.1"
 
 
