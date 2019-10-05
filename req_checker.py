@@ -10,6 +10,7 @@ import os.path
 
 virtual_uri="/.well-known/access.log"
 log_path="logs/access.log"
+log_path = os.getenv(LogPath, log_path)
 
 def load_yaml():
 	file=open('check.yaml','r')
