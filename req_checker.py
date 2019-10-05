@@ -8,10 +8,6 @@ import os
 import os.path 
 
 
-virtual_uri="/.well-known/access.log"
-log_path="logs/access.log"
-log_path = os.getenv(LogPath, log_path)
-
 def load_yaml():
 	file=open('check.yaml','r')
 	main_dict= yaml.safe_load(file)
@@ -123,6 +119,9 @@ def check_req_line(req):  #req_line=req[0]
 main_dict=load_yaml()
 docroot= main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)
+virtual_uri="/.well-known/access.log"
+log_path=docroot+"/logs/access.log"
+log_path = os.getenv(LogPath, log_path)
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 
