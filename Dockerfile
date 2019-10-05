@@ -3,6 +3,9 @@ FROM python:3.7
 LABEL maintainer="Kritika Garg <@kritikagarg7>"
 
 ENV  PYTHONUNBUFFERED=1
+ENV  DOCROOT=/var/www/cs531server
+
+ADD  sample/* $DOCROOT/
 
 WORKDIR /app
 

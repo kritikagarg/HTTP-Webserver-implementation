@@ -110,6 +110,7 @@ def check_req_line(req):  #req_line=req[0]
 
 main_dict=load_yaml()
 docroot= main_dict['Root_DIR']
+docroot = os.getenv("DOCROOT", docroot)
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 

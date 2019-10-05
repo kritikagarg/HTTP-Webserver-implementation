@@ -16,7 +16,7 @@ now = datetime.datetime.now()
 Date = str(format_date_time(mktime(now.timetuple())))
 
 HOST= '0.0.0.0'
-PORT= 80
+PORT= 8080
 Server="kitkat.0.1"
 
 
@@ -25,10 +25,7 @@ if len(sys.argv) > 1:
 if len(sys.argv) > 2:
 	PORT = int(sys.argv[2])
 
-def load_yaml():
-	file=open('check.yaml','r')
-	main_dict= yaml.safe_load(file)
-	return main_dict
+#________________Logs______________________
 
 def yaml_dump(log_string):
 	file=open('.well-known/access.log','w')
@@ -119,10 +116,6 @@ def send_payload(method, content, orignal_msg):
 		payload=None
 	return payload
 
-# def ext_path(uri):
-# 	path = urlparse(uri).path
-# 	return path
-
 def find_ext(content):
 	if './' in content:
 		extension = content.split('.')[2]
@@ -153,9 +146,10 @@ def req_handler(data):
 	log_string= func_log(req, req_line,sc)
 	return res,log_string
 
-if __name__ == "__main__": 
-	main_dict=load_yaml()	
-	docroot= main_dict['Root_DIR']
+if __name__ == "__main__":
+	main_dict=req_checker.load_yaml()	
+	docroot = main_dict['Root_DIR']
+	docroot = os.getenv("DOCROOT", docroot)
 
 	s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -172,7 +166,7 @@ if __name__ == "__main__":
 			buf = conn.recv(5000)
 			while buf:
 				data.append(buf)
-				conn.settimeout(0.5)
+				conn.settimeout(0.03)
 				buf = conn.recv(4096)
 		except socket.timeout as e:
 			pass
