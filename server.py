@@ -32,7 +32,7 @@ if len(sys.argv) > 2:
 
 #def func_log(req, req_line, sc):
 #	try:	
-		ip=req[1][1].split(":")[1]
+#		ip=req[1][1].split(":")[1]
 #	except:
 #		ip='x'	
 #	return f"{ip} {Date} {req_line} {sc}"
