@@ -9,7 +9,7 @@ import os.path
 
 
 virtual_uri="/.well-known/access.log"
-log_path="/logs/access.log"
+log_path="logs/access.log"
 
 def load_yaml():
 	file=open('check.yaml','r')
