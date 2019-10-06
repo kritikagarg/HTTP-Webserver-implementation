@@ -8,7 +8,7 @@ import os
 import os.path 
 
 virtual_uri="/.well-known/access.log"
-log_path="access.log"
+log_path="/access.log"
 
 def load_yaml():
 	file=open('check.yaml','r')
