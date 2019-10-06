@@ -3,7 +3,7 @@ import sys
 import yaml
 import re
 import io
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote_plus
 import os
 import os.path 
 
@@ -66,8 +66,8 @@ def check_version(req):
 	return sc
 
 def ext_path(uri):
-	path = urlparse(uri).path
-	path=urllib.parse.unquote_plus(path)
+	path=urlparse(uri).path
+	path=unquote_plus(path)
 	return path
 
 def get_content(req):
