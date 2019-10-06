@@ -21,7 +21,7 @@ def yaml_dump(log_string):
 
 def check_log_path(path):
 	if path==virtual_uri:
-		path= log_path
+		path=log_path
 	return path
 
 
@@ -67,6 +67,7 @@ def check_version(req):
 
 def ext_path(uri):
 	path = urlparse(uri).path
+	path=urllib.parse.unquote_plus(path)
 	return path
 
 def get_content(req):
@@ -81,10 +82,7 @@ def get_content(req):
 
 def check_valid_path(req):
 	content=get_content(req)
-	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
-	if open=='/home/kgarg/classwork/fall19/cs531/.well-known/access.log':
-		sc=200
-
+	exist=os.path.exists(os.path.expanduser(os.path.normpath(content))
 	if exist:
 		sc=check_version(req)      
 	else: 
