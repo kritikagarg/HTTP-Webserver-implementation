@@ -82,13 +82,14 @@ def get_content(req):
 
 def check_valid_path(req):
 	content=get_content(req)
-	exist=os.path.exists(os.path.expanduser(os.path.normpath(content))
+	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
 	if exist:
 		sc=check_version(req)      
 	else: 
-		sc= 404
+		sc=404
 		print("invalid path:"+content)	
 	return sc
+
 
 def check_method(req):
 	m=req[0][0]
