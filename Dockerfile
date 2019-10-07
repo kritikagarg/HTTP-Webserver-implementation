@@ -6,7 +6,7 @@ ENV  PYTHONUNBUFFERED=1
 ENV  DOCROOT=/var/www/cs531server
 
 ADD  sample/* $DOCROOT/
-COPY  access1.log $DOCROOT/
+ADD  access.log $DOCROOT/
 
 WORKDIR /app
 
