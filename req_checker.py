@@ -1,6 +1,6 @@
 import socket
 import sys
-import yaml
+from ruamel import yaml
 import re
 import io
 from urllib.parse import urlparse, unquote_plus

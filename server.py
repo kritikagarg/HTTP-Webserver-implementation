@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import sys
-import yaml
+from ruamel import yaml
 import re
 import io
 import datetime
@@ -19,7 +19,7 @@ Date = str(format_date_time(mktime(now.timetuple())))
 HOST= '0.0.0.0'
 PORT= 8080
 Server="kitkat.0.1"
-log_path="/access.log"
+log_path="access1.log"
 
 
 if len(sys.argv) > 1:
@@ -30,19 +30,17 @@ if len(sys.argv) > 2:
 #________________Logs______________________
 save_log=[] 
 
-def func_log(save_log):
-	e='-'
-	try:	
-		ip=req[1][1].split(":")[0] #from host field
-		rest=" ".join(savelog)
-		return f"{ip} {e} {e} {Date} {rest}"
-	except:
-		pass	
+def func_log(save_log, req,addr):
+	e='-'	
+	ip=addr[0]
+	rest=" ".join(save_log)
+	return f"{ip} {e} {e} {Date} {rest}\n"
+	
 	
 
-def yaml_dump(log_string):
+def log_dump(log_string):
 	file=open(log_path,'w')
-	yaml.dump(log_string, file)
+	file.write(log_string)
 
 #____________________________________RESPONSE____________________________________
 def OK_response_body(method,sc, Date, last_modified, content_length, content_type, connection): #last_modified,content_length
@@ -77,7 +75,7 @@ def response_handler(sc, req, orignal_msg):
 	#print(docroot)
 	connection='close'
 	method=req[0][0]
-	save_log.append(sc)
+	save_log.append(str(sc))
 	if sc in main_dict['error_code']:
 		content_length='0' 
 		res=err_response_body(sc, Date, content_length, connection)
@@ -148,7 +146,7 @@ def req_handler(data):
 	orignal_msg=data
 	req,sc=req_checker.check_req_line(request_parser(data))
 	res=response_handler(sc,req,orignal_msg)
-	return res
+	return res, req 
 
 if __name__ == "__main__":
 	main_dict=req_checker.load_yaml()	
@@ -177,9 +175,9 @@ if __name__ == "__main__":
 		except Exception as e:
 			pass
 		data = b"".join(data)
-		res=req_handler(data)
-		yaml_dump(func_log(save_log))
+		res,req=req_handler(data)
 		conn.sendall(res)
+		log_dump(func_log(save_log, req, addr))
 		conn.close()
 		#try:
 			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
