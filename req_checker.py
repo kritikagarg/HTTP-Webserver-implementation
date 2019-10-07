@@ -15,10 +15,6 @@ def load_yaml():
 	main_dict= yaml.safe_load(file)
 	return main_dict
 
-def yaml_dump(log_string):
-	file=open(log_path,'w')
-	yaml.dump(log_string, file)
-
 def check_log_path(path):
 	if path==virtual_uri:
 		path=log_path

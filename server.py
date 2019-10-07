@@ -15,6 +15,7 @@ import req_checker
 now = datetime.datetime.now()
 Date = str(format_date_time(mktime(now.timetuple())))
 
+
 HOST= '0.0.0.0'
 PORT= 8080
 Server="kitkat.0.1"
@@ -26,14 +27,20 @@ if len(sys.argv) > 2:
 	PORT = int(sys.argv[2])
 
 #________________Logs______________________
+save_log=[] 
 
-def func_log(req, req_line, sc):
+def func_log(save_log):
+	e='-'
 	try:	
-		ip=req[1][1].split(":")[1]
+		ip=req[1][1].split(":")[0] #from host field
+		rest=" ".join(savelog)
 	except:
-		ip='x'	
-	return f"{ip} {Date} {req_line} {sc}"
+		pass	
+	return f"{ip} {e} {e} {Date} {rest}"
 
+def yaml_dump(log_string):
+	file=open(log_path,'w')
+	yaml.dump(log_string, file)
 
 #____________________________________RESPONSE____________________________________
 def OK_response_body(method,sc, Date, last_modified, content_length, content_type, connection): #last_modified,content_length
@@ -68,7 +75,7 @@ def response_handler(sc, req, orignal_msg):
 	#print(docroot)
 	connection='close'
 	method=req[0][0]
-
+	save_log.append(sc)
 	if sc in main_dict['error_code']:
 		content_length='0' 
 		res=err_response_body(sc, Date, content_length, connection)
@@ -76,7 +83,7 @@ def response_handler(sc, req, orignal_msg):
 
 	else:
 		content=req_checker.get_content(req)
-		print(content)
+		#print(content)
 	
 		extension=find_ext(content)
 		payload=send_payload(method, content, orignal_msg)
@@ -94,9 +101,11 @@ def response_handler(sc, req, orignal_msg):
 		res=OK_response_body(method, sc, Date, last_modified, content_length, content_type, connection) #last_modified,#content_length
 
 	res=res.encode()
+	save_log.append(content_length)
 	if payload:
 		res= res + payload
 	return res
+
 
 def send_payload(method, content, orignal_msg):
 	method_dict=main_dict['methods']
@@ -123,24 +132,21 @@ def request_parser(data):
 	f=io.BytesIO(data)
 	req_line=f.readline().decode("utf8").rstrip()
 	req=[req_line]
-#	log_list.append(req_line)   
+	save_log.append(req_line)
 	for line in f:
 		line=line.replace(b'\r',b'')
 		line=line.decode("utf8").rstrip()
 		if line!="":
 			reqheader,value= line.split(': ',1)
 			req.append((reqheader,value))
-	return req, req_line
+	return req
 
 
 def req_handler(data):
 	orignal_msg=data
-	#print(orignal_msg)
-	req,req_line=request_parser(data)
-	req,sc=req_checker.check_req_line(req)
+	req,sc=req_checker.check_req_line(request_parser(data))
 	res=response_handler(sc,req,orignal_msg)
-	log_string= func_log(req, req_line,sc)
-	return res,log_string
+	return res
 
 if __name__ == "__main__":
 	main_dict=req_checker.load_yaml()	
@@ -169,8 +175,8 @@ if __name__ == "__main__":
 		except Exception as e:
 			pass
 		data = b"".join(data)
-		res,log_string=req_handler(data)
-		req_checker.yaml_dump(log_string)
+		res=req_handler(data)
+		yaml_dump(func_log(save_log))
 		conn.sendall(res)
 		conn.close()
 		#try:
@@ -179,10 +185,3 @@ if __name__ == "__main__":
 		#	print("Error creating new thread for conn", ip, ":", port)
 			
 	s.close()
-
-
-
-
-
-
-
