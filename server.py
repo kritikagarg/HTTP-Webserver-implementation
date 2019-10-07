@@ -34,9 +34,10 @@ def func_log(save_log):
 	try:	
 		ip=req[1][1].split(":")[0] #from host field
 		rest=" ".join(savelog)
+		return f"{ip} {e} {e} {Date} {rest}"
 	except:
 		pass	
-	return f"{ip} {e} {e} {Date} {rest}"
+	
 
 def yaml_dump(log_string):
 	file=open(log_path,'w')
