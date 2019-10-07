@@ -19,7 +19,7 @@ Date = str(format_date_time(mktime(now.timetuple())))
 HOST= '0.0.0.0'
 PORT= 8080
 Server="kitkat.0.1"
-log_path="access1.log"
+log_path="access.log"
 
 
 if len(sys.argv) > 1:
