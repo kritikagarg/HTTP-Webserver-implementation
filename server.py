@@ -30,17 +30,18 @@ if len(sys.argv) > 2:
 #________________Logs______________________
 save_log=[] 
 
-def func_log(save_log, req,addr):
+def log_dump(save_log, req,addr):
 	e='-'	
 	ip=addr[0]
 	rest=" ".join(save_log)
-	return f"{ip} {e} {e} {Date} {rest}\n"
-	
+	log_string=ip+' '+e+' '+e+' '+Date+' '+rest+'\n'
+#	return f"{ip} {e} {e} {Date} {rest}"
+	logfile.write(log_string)
+	logfile.flush()
 	
 
-def log_dump(log_string):
-	file=open(log_path,'w')
-	file.write(log_string)
+#def log_dump(log_string):
+	
 
 #____________________________________RESPONSE____________________________________
 def OK_response_body(method,sc, Date, last_modified, content_length, content_type, connection): #last_modified,content_length
@@ -97,7 +98,8 @@ def response_handler(sc, req, orignal_msg):
 				content_type="application/octet-stream"   #Default 
 			
 		content_length= str(os.path.getsize(content))
-		last_modified= str(time.ctime(os.path.getmtime(content))) 
+		##LAST MODIFIED date format
+		last_modified= str(format_date_time(os.path.getmtime(content)))
 		res=OK_response_body(method, sc, Date, last_modified, content_length, content_type, connection) #last_modified,#content_length
 
 	res=res.encode()
@@ -152,6 +154,7 @@ if __name__ == "__main__":
 	main_dict=req_checker.load_yaml()	
 	docroot = main_dict['Root_DIR']
 	docroot = os.getenv("DOCROOT", docroot)
+	logfile=open(log_path,'w')
 
 	s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -177,7 +180,7 @@ if __name__ == "__main__":
 		data = b"".join(data)
 		res,req=req_handler(data)
 		conn.sendall(res)
-		log_dump(func_log(save_log, req, addr))
+		log_dump(save_log, req, addr)
 		conn.close()
 		#try:
 			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
