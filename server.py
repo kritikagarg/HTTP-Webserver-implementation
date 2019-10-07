@@ -12,15 +12,13 @@ import os
 from urllib.parse import urlparse
 import req_checker
 
-now = datetime.datetime.now()
+now = datetime.datetime.utcnow()
 Date = str(format_date_time(mktime(now.timetuple())))
 
 
 HOST= '0.0.0.0'
 PORT= 8080
 Server="kitkat.0.1"
-log_path="access.log"
-
 
 if len(sys.argv) > 1:
 	HOST = sys.argv[1]
@@ -28,19 +26,12 @@ if len(sys.argv) > 2:
 	PORT = int(sys.argv[2])
 
 #________________Logs______________________
-save_log=[] 
+ld={}  #log_dic
+#def log_dump(ld, uid="-", uname="-", logfile=sys.stderr):
 
-def log_dump(save_log, req,addr):
-	e='-'	
-	ip=addr[0]
-	rest=" ".join(save_log)
-	log_string=ip+' '+e+' '+e+' '+Date+' '+rest+'\n'
-#	return f"{ip} {e} {e} {Date} {rest}"
-	logfile.write(log_string)
-	logfile.flush()
-	
-
-#def log_dump(log_string):
+def log_dump(ld, uid="-", uname="-", logfile=sys.stderr):
+	logdate=now.strftime("%d/%b/%Y:%H:%M:%S GMT")
+	print(f'{ld["ip"]} {uid} {uname} [{logdate}] "{ld["req_line"]}" {ld["status_code"]} {ld["content_length"]}', file=lfile)	
 	
 
 #____________________________________RESPONSE____________________________________
@@ -76,7 +67,7 @@ def response_handler(sc, req, orignal_msg):
 	#print(docroot)
 	connection='close'
 	method=req[0][0]
-	save_log.append(str(sc))
+	ld["status_code"]=str(sc)
 	if sc in main_dict['error_code']:
 		content_length='0' 
 		res=err_response_body(sc, Date, content_length, connection)
@@ -103,7 +94,7 @@ def response_handler(sc, req, orignal_msg):
 		res=OK_response_body(method, sc, Date, last_modified, content_length, content_type, connection) #last_modified,#content_length
 
 	res=res.encode()
-	save_log.append(content_length)
+	ld["content_length"]=content_length
 	if payload:
 		res= res + payload
 	return res
@@ -134,7 +125,7 @@ def request_parser(data):
 	f=io.BytesIO(data)
 	req_line=f.readline().decode("utf8").rstrip()
 	req=[req_line]
-	save_log.append(req_line)
+	ld["req_line"]=req_line
 	for line in f:
 		line=line.replace(b'\r',b'')
 		line=line.decode("utf8").rstrip()
@@ -154,13 +145,16 @@ if __name__ == "__main__":
 	main_dict=req_checker.load_yaml()	
 	docroot = main_dict['Root_DIR']
 	docroot = os.getenv("DOCROOT", docroot)
-	logfile=open(log_path,'w')
 
 	s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	s.bind((HOST,PORT))
 	s.listen(2)
 	print("Listening on " + HOST + ":" + str(PORT))
+
+	log_file = main_dict['log_file']
+	log_file = os.getenv("LOG_FILE", log_file)
+	lfile=open(log_file,'a')
 
 	while True:
 		conn, addr = s.accept()
@@ -178,9 +172,10 @@ if __name__ == "__main__":
 		except Exception as e:
 			pass
 		data = b"".join(data)
+		ld["ip"]=addr[0]
 		res,req=req_handler(data)
 		conn.sendall(res)
-		log_dump(save_log, req, addr)
+		log_dump(ld,logfile=lfile)
 		conn.close()
 		#try:
 			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP

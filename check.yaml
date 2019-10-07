@@ -1,4 +1,5 @@
 Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531
+log_file: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531/logs/access.log
 
 methods:
  GET:
@@ -58,7 +59,7 @@ MimeTypes:
  jpeg: image/jpeg
  jpg: image/jpeg 
  jpe: image/jpeg
- gif: image/giapplication/octet-streamf
+ gif: image/gif
  pdf: application/pdf
  ppt: application/vnd.ms-powerpoint
  pps: application/vnd.ms-powerpoint

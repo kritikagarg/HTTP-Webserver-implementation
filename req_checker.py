@@ -8,16 +8,15 @@ import os
 import os.path 
 
 virtual_uri="/.well-known/access.log"
-log_path="/access.log"
 
 def load_yaml():
 	file=open('check.yaml','r')
 	main_dict= yaml.safe_load(file)
 	return main_dict
 
-def check_log_path(path):
-	if path==virtual_uri:
-		path=log_path
+def check_log_path(path,method):
+	if path==virtual_uri and method=='GET':
+		path=log_file
 	return path
 
 
@@ -68,8 +67,9 @@ def ext_path(uri):
 
 def get_content(req):
 	uri=req[0][1]
+	method=req[0][0]
 	path=ext_path(uri)
-	path=check_log_path(path)
+	path=check_log_path(path,method)
 	#print(path)
 	#global content
 	#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
@@ -116,6 +116,9 @@ def check_req_line(req):  #req_line=req[0]
 main_dict=load_yaml()
 docroot= main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)
+
+log_file = main_dict['log_file']
+log_file = os.getenv("LOG_FILE", log_file)
 
 #log_path = os.getenv("LogPath", log_path)
 
