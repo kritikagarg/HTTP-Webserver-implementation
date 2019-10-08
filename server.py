@@ -63,7 +63,6 @@ def err_response_body(sc, Date, content_length, connection):
 
 def response_handler(sc, req, orignal_msg):
 	docroot= main_dict['Root_DIR']
-	mime_support= main_dict['MimeTypes']
 	#print(docroot)
 	connection='close'
 	method=req[0][0]
@@ -89,6 +88,7 @@ def response_handler(sc, req, orignal_msg):
 
 
 def get_content_type(method,content):
+	mime_support= main_dict['MimeTypes']
 	extension=find_ext(content)
 	if method=="TRACE":
 		content_type="message/http"           ##CH
