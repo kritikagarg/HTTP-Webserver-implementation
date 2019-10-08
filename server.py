@@ -75,22 +75,10 @@ def response_handler(sc, req, orignal_msg):
 
 	else:
 		content=req_checker.get_content(req)
-		#print(content)
-	
-		extension=find_ext(content)
-		payload=send_payload(method, content, orignal_msg)
-
-		if method=="TRACE":
-			content_type="message/http"           ##CH
-		else:
-			try:	
-				content_type=mime_support[extension]
-			except:
-				content_type="application/octet-stream"   #Default 
-			
-		content_length= str(os.path.getsize(content))
-		##LAST MODIFIED date format
-		last_modified= str(format_date_time(os.path.getmtime(content)))
+		content_type=get_content_type(method,content)
+		content_length= str(get_content_length(method, content, orignal_msg))		
+		payload=send_payload(method, content, orignal_msg)			
+		last_modified=str(format_date_time(os.path.getmtime(content)))
 		res=OK_response_body(method, sc, Date, last_modified, content_length, content_type, connection) #last_modified,#content_length
 
 	res=res.encode()
@@ -100,8 +88,31 @@ def response_handler(sc, req, orignal_msg):
 	return res
 
 
+def get_content_type(method,content):
+	extension=find_ext(content)
+	if method=="TRACE":
+		content_type="message/http"           ##CH
+	else:
+		try:	
+			content_type=mime_support[extension]
+		except:
+			content_type="application/octet-stream"   #Default 
+	return content_type
+
+
+def get_content_length(method, content, orignal_msg):
+	prop_dict=method_dict[method]
+	if prop_dict['content_length']:
+		if prop_dict['echo']:
+			#print("Hey!...its TRACE")
+			content_length=len(orignal_msg)
+		else:
+			content_length=os.path.getsize(content)				
+	else:
+		content_length=0
+	return content_length
+
 def send_payload(method, content, orignal_msg):
-	method_dict=main_dict['methods']
 	prop_dict=method_dict[method]
 	if prop_dict['payload']:
 		if prop_dict['echo']:
@@ -156,6 +167,7 @@ if __name__ == "__main__":
 	log_dir = os.getenv("LOG_DIR", log_dir)
 	log_file = main_dict['log_file']
 	lfile=open(log_dir+log_file,'a', buffering=1)
+	method_dict=main_dict['methods']  #method properties
 
 	while True:
 		conn, addr = s.accept()

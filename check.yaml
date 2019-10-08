@@ -6,18 +6,22 @@ methods:
  GET:
   respbody: OK_response_body
   payload: True
+  content_length: True
   echo: False
  HEAD:
   respbody: OK_response_body
   payload: False
+  content_length: True
   echo: False
  OPTIONS:
   respbody: OK_response_body
   payload: False
+  content_length: False
   echo: False 
  TRACE:
   respbody: OK_response_body
   payload: True
+  content_length: True
   echo: True 
 
 reqheaders:
