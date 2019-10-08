@@ -155,7 +155,7 @@ if __name__ == "__main__":
 	log_dir = main_dict['log_dir']
 	log_dir = os.getenv("LOG_DIR", log_dir)
 	log_file = main_dict['log_file']
-	lfile=open(log_dir+log_file,'a', buffering=0)
+	lfile=open(log_dir+log_file,'a', buffering=1)
 
 	while True:
 		conn, addr = s.accept()
