@@ -16,8 +16,8 @@ def load_yaml():
 
 def check_log_path(path,method):
 	if path==virtual_uri and method=='GET':
-		virtual_uri=True
-	return virtual_uri
+		v_uri=True
+	return v_uri
 
 
 #CHECK IF Header have any trailing spaces or other discrepancies    
@@ -69,10 +69,10 @@ def get_content(req):
 	uri=req[0][1]
 	method=req[0][0]
 	path=ext_path(uri)
-	path=check_log_path(path,method)
+	v_uri=check_log_path(path,method)
 	#print(path)
 	#global content
-	if virtual_uri:
+	if v_uri:
 		content=log_path
 	else:	
 		#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
