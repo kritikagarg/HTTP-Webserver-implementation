@@ -30,7 +30,7 @@ ld={}  #log_dic
 #def log_dump(ld, uid="-", uname="-", logfile=sys.stderr):
 
 def log_dump(ld, uid="-", uname="-", logfile=sys.stderr):
-	logdate=now.strftime("%d/%b/%Y:%H:%M:%S GMT")
+	logdate=now.strftime("%d/%b/%Y:%H:%M:%S +0000")
 	print(f'{ld["ip"]} {uid} {uname} [{logdate}] "{ld["req_line"]}" {ld["status_code"]} {ld["content_length"]}', file=lfile)	
 	
 
