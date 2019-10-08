@@ -7,6 +7,7 @@ ENV  DOCROOT=/var/www/cs531server
 ENV  LOG_DIR=/var/logs/
 
 ADD  sample/* $DOCROOT/
+ADD  logs/* $LOG_DIR/
 
 WORKDIR /app
 
