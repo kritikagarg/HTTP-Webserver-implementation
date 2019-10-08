@@ -16,8 +16,8 @@ def load_yaml():
 
 def check_log_path(path,method):
 	if path==virtual_uri and method=='GET':
-		path=log_file
-	return path
+		virtual_uri=True
+	return virtual_uri
 
 
 #CHECK IF Header have any trailing spaces or other discrepancies    
@@ -72,8 +72,11 @@ def get_content(req):
 	path=check_log_path(path,method)
 	#print(path)
 	#global content
-	#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
-	content=docroot+path
+	if virtual_uri:
+		content=log_path
+	else:	
+		#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
+		content=docroot+path
 	return content
 
 def check_valid_path(req):
@@ -120,6 +123,7 @@ docroot = os.getenv("DOCROOT", docroot)
 log_dir = main_dict['log_dir']
 log_dir = os.getenv("LOG_DIR", log_dir)
 log_file = main_dict['log_file']
+log_path= log_dir+log_file
 
 #log_path = os.getenv("LogPath", log_path)
 
@@ -130,4 +134,6 @@ log_file = main_dict['log_file']
 #print('status_code:'+str(sc))
 #print(req)
 #print(get_content(req))
+
+
 
