@@ -152,9 +152,10 @@ if __name__ == "__main__":
 	s.listen(2)
 	print("Listening on " + HOST + ":" + str(PORT))
 
+	log_dir = main_dict['log_dir']
+	log_dir = os.getenv("LOG_DIR", log_dir)
 	log_file = main_dict['log_file']
-	log_file = os.getenv("LOG_FILE", log_file)
-	lfile=open(log_file,'a')
+	lfile=open(log_dir+log_file,'a')
 
 	while True:
 		conn, addr = s.accept()

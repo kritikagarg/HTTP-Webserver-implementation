@@ -1,5 +1,6 @@
 Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531
-log_file: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531/logs/access.log
+log_dir: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531/logs/
+log_file: access.log
 
 methods:
  GET:

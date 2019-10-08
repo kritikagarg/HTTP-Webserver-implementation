@@ -117,8 +117,9 @@ main_dict=load_yaml()
 docroot= main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)
 
+log_dir = main_dict['log_dir']
+log_dir = os.getenv("LOG_DIR", log_dir)
 log_file = main_dict['log_file']
-log_file = os.getenv("LOG_FILE", log_file)
 
 #log_path = os.getenv("LogPath", log_path)
 
