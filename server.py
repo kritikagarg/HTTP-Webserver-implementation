@@ -46,7 +46,7 @@ def OK_response_body(method,sc, Date, last_modified, content_length, content_typ
 	res += 'Content-Type: ' + content_type + '\r\n'
 	res += 'Connection: ' + connection + '\r\n'
 	if method=='OPTIONS':
-		res += "Allow: GET OPTIONS HEAD TRACE" +'\r\n'
+		res += "Allow: GET, HEAD, OPTIONS, TRACE" +'\r\n'
 	res += '\r\n'
 	return res
 
@@ -58,6 +58,8 @@ def err_response_body(sc, Date, content_length, connection):
 	res += 'Server: '+ Server + '\r\n' 	
 	res += 'Content-Length: ' + content_length + '\r\n'
 	res += 'Connection: ' + connection + '\r\n'
+	if sc==405:
+		res += "Allow:" +'\r\n'
 	res += '\r\n'	
 	return res
 
