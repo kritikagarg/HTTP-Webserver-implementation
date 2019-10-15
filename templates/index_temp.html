@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Index:{{p_name}}</title>
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen"> 
+    <style type="text/css">
+      .container {
+        max-width: 500px;
+        padding-top: 100px;
+      }
+    </style>
+-->
+  </head>
+  <body>
+<h1> INDEX: /{{p_name}}</h1>
+
+<table style="width:30%">
+  <tr align="left">
+  	<th valign="top"><img src="icons/blank.gif" alt="[ICO]">
+    <th >Name</a></th>
+    <th>Last modified</a></th>
+    <th>Size</a></th> 
+  </tr>
+  <tr><th colspan="4"><hr></th></tr>
+  <tr>
+  	<td valign="top"><img src="icons/back.gif" alt="[PARENTDIR]"></td>
+  	<td><a href={{parent}}>Parent Directory</a></td><td>&nbsp;</td><td align="right"></td>
+  </tr>
+  {% for item in folder %}
+  <tr>
+  	<td valign="top"><img src={{item.icon}} alt={{item.alt}}>
+    <td id="id01" ><a href={{item.link}}> {{item.name}} </a></td>
+    <td> {{item.time}} </td>
+    <td> {{item.size}} </td>
+  </tr>
+  {%- endfor %}
+  <tr><th colspan="4"><hr></th></tr>
+</table>
+</body>
+</html>
+ 

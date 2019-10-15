@@ -1,41 +1,38 @@
-import socket
 import sys
 from ruamel import yaml
 import re
 import io
-from urllib.parse import urlparse, unquote_plus
 import os
-import os.path 
+import os.path
+import imp_func
+import path_checker, conditional
 
-virtual_uri="/.well-known/access.log"
+main_dict=imp_func.load_yaml()
+#----------------------------------------------------
+# def check_valid_path(req):
+# 	content=imp_func.get_content(req)
+# 	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
+# 	if exist:
+# 		sc=200  
+# 	else: 
+# 		sc=404
+# 		print("invalid path:"+content)	
+# 	return sc
 
-def load_yaml():
-	file=open('check.yaml','r')
-	main_dict= yaml.safe_load(file)
-	return main_dict
 
-def check_log_path(path,method):
-	if path==virtual_uri and method=='GET':
-		return True
-	else:
-		return False
-
-
-#CHECK IF Header have any trailing spaces or other discrepancies    
-##send 200 code at last
 def check_headers(req):
 	sc=200
 	host_count=0                   
 	for i in range(1,len(req)):
-		header=req[i][0].lower()         # To take all cases of headers ..host,HOST
+		header=req[i][0]         # To take all cases of headers ..host,HOST
 		if header not in main_dict['reqheaders']:  #check for header supported, ex="      host  "  
 			sc=400
-			print("invalid header")	
+			print("invalid header: "+(header))	
 		if header=="host":   
 			host_count+=1
 			#print(host_count)	
 
-	chost=req[1][0].lower()      #check if second line is Host or not		
+	chost=req[1][0]    #check if second line is Host or not		
 	if chost!= "host":
 		sc=400
 		print("Second line is not host")
@@ -50,7 +47,6 @@ def check_headers(req):
 		print("more than 1 host present")
 	return sc		
 
-
 def check_version(req):
 	ver=req[0][2]
 	ver=ver.strip()
@@ -61,43 +57,13 @@ def check_version(req):
 		print("invalid version")	
 	return sc
 
-def ext_path(uri):
-	path=urlparse(uri).path
-	path=unquote_plus(path)
-	return path
-
-def get_content(req):
-	uri=req[0][1]
-	method=req[0][0]
-	path=ext_path(uri)
-	c=check_log_path(path,method)
-	#print(path)
-	#global content
-	if c==True:
-		content=log_path
-	else:	
-		#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
-		content=docroot+path
-	return content
-
-def check_valid_path(req):
-	content=get_content(req)
-	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
-	if exist:
-		sc=check_version(req)      
-	else: 
-		sc=404
-		print("invalid path:"+content)	
-	return sc
-
-
 def check_method(req):
 	m=req[0][0]
 	check1= m.isalpha() and req[0][0].isupper()
 	if check1:
 		if m in main_dict['methods']:
-			# sc=check_valid_uri(req)
-			sc=check_valid_path(req) 
+#			sc=check_valid_path(req) 
+			sc=check_version(req)
 		else: 
 			sc=501
 			print("invalid method")	
@@ -117,16 +83,16 @@ def check_req_line(req):  #req_line=req[0]
 		print("invalid status line")	
 	return req, sc 
 
-main_dict=load_yaml()
-docroot= main_dict['Root_DIR']
-docroot = os.getenv("DOCROOT", docroot)
-
-log_dir = main_dict['log_dir']
-log_dir = os.getenv("LOG_DIR", log_dir)
-log_file = main_dict['log_file']
-log_path= log_dir+log_file
-
-#log_path = os.getenv("LogPath", log_path)
+def check_request(req):
+	req,sc = check_req_line(req)
+	method=req[0][0]
+	loc = None
+	etag =None
+	if int(sc/100) == 2 :
+		sc, loc = path_checker.path_check(req)
+		if int(sc/100) == 2 and method in {'GET', 'HEAD'}:
+			sc, etag = conditional.check_conditional_requests(req) 
+	return req, sc, loc
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 

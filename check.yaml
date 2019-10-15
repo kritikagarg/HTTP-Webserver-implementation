@@ -1,25 +1,23 @@
-Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531
-log_dir: /home/kgarg/classwork/fall19/webserverDesign/A1/cs531/logs/
+Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A2/cs531
+log_dir: /home/kgarg/classwork/fall19/webserverDesign/A2/cs531/logs/
 log_file: access.log
+
+timeout: 5
 
 methods:
  GET:
-  respbody: OK_response_body
   payload: True
   content_length: True
   echo: False
  HEAD:
-  respbody: OK_response_body
   payload: False
   content_length: True
   echo: False
  OPTIONS:
-  respbody: OK_response_body
   payload: False
   content_length: False
   echo: False 
  TRACE:
-  respbody: OK_response_body
   payload: True
   content_length: True
   echo: True 
@@ -28,26 +26,24 @@ reqheaders:
 - host
 - connection
 - user-agent
+- if-modified-since
+- if-unmodified-since
+- if-match
+- if-none-match
 
 status_code:
- 200: OK
- 400: Bad Request
- 403: Forbidden
- 404: Not Found
- 500: Internal Server Error
- 501: Not Implemented
- 505: HTTP Version Not Supported
-
-clear_code:
-- 200
-
-error_code:
-- 400
-- 403
-- 404
-- 500
-- 501
-- 505
+  200: OK
+  301: Moved Permanently 
+  302: Found 
+  304: Not Modified
+  400: Bad Request
+  403: Forbidden
+  404: Not Found
+  408: Request Timeout
+  412: Precondition Failed
+  500: Internal Server Error
+  501: Not Implemented
+  505: HTTP Version Not Supported
 
 MimeTypes:
  txt: text/plain
@@ -58,6 +54,7 @@ MimeTypes:
  log: text/plain
  in: text/plain
  html: text/html
+ /: text/html
  htm: text/html
  xml: text/xml
  png: image/png
@@ -90,10 +87,4 @@ MimeTypes:
  deploy: application/octet-stream
  N/A: message/http
 
-Image:
- png: image/png
- jpeg: image/jpeg
- jpg: image/jpeg 
- jpe: image/jpeg
- gif: image/giapplication/octet-streamf
 

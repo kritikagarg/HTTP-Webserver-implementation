@@ -1,0 +1,20 @@
+server.py
+res_body.py =========> serializer	  
+imp_func.py =========> variables and functions needed in all files (like get_content, load yaml)	
+req_checker.py ======> check the parsed request	  
+res_functions.py ====> contains functions calculating reponse headers like content length etc.
+parser.py ===========> parse request into list of tuples form
+path_checker.py	=====> check path is valid direc or file and redirect accordingly
+direc_list.py =====> for directory listing
+conditional.py====> conditionsl statement
+e_tag= generate etag
+	 
+config_file:
+check.yaml
+redirect.yaml
+
+
+
+
+
+
