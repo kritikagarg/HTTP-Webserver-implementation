@@ -21,7 +21,7 @@ def content_attribute(method, content, orignal_msg):
 		else:
 			payload=open(content, "rb").read()
 			content_length=os.path.getsize(content)	
-	return payload, str(content_length)
+	return payload , str(content_length)
 
 
 def find_ext(content):

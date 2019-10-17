@@ -64,7 +64,7 @@ def check_none_match(if_dict, etag, method):
 		tag=tag.strip()
 		if etag==tag:
 			if method in {'GET','HEAD'}:
-				sc=314
+				sc=304
 			else:
 				sc=412
 			break

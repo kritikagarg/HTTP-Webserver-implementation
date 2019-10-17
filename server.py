@@ -3,7 +3,7 @@ import socket
 import sys
 import os
 import datetime
-from time import mktime
+from time import mktime, ctime
 from wsgiref.handlers import format_date_time
 import imp_func, parser, req_checker, res_functions, res_body, conditional, e_tag
 
@@ -27,8 +27,7 @@ def log_dump(ip,req,ld, uid="-", uname="-", logfile=sys.stderr):
 #____________________________________RESPONSE____________________________________
 ##CREATE res_headers_list : list of tuples
 
-def response_handler(sc, req, orignal_msg, loc=None):
-	connection= imp_func.connect(req)
+def response_handler(sc, req, orignal_msg, connection, loc=None):
 	method=req[0][0]
 	ld["status_code"]=str(sc)
 	first_sc=str(sc)[:1]
@@ -36,7 +35,7 @@ def response_handler(sc, req, orignal_msg, loc=None):
 	payload=None                  
 
 	if first_sc in {'4','5'}:
-		res=res_body.err_response_body(sc, Date, content_length, connection)
+		res=res_body.err_response_body(sc, Date, connection, content_length)
 	elif first_sc=='2':
 		content = imp_func.get_content(req)
 		payload, content_length = res_functions.content_attribute(method, content, orignal_msg)					
@@ -57,44 +56,75 @@ def response_handler(sc, req, orignal_msg, loc=None):
 
 def req_handler(orignal_msg):
 	req, sc, loc= req_checker.check_request(parser.request_parser(data))
-	res = response_handler(sc, req, orignal_msg, loc)
-	return res, req 
+	connection= imp_func.connect(req)
+	res = response_handler(sc, req, orignal_msg, connection, loc)
+	return res, req, connection 
+
 
 
 if __name__ == "__main__":	
 	s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	s.bind((HOST,PORT))
-	s.listen(4)
+	s.listen(3)
 	print("Listening on " + HOST + ":" + str(PORT))
 
 	docroot = imp_func.docroot
 	log_path = imp_func.log_path
 	lfile=open(log_path,'a', buffering=1)
-
+	#timeout=imp_func.main_dict['timeout']
 	while True:
+		print(f'Time1:{ctime()}') 
 		conn, addr = s.accept()
 		print('accepted', conn, 'from', addr)
-		try:
-			data = []
-			timeout=imp_func.main_dict['timeout']
-			conn.settimeout(timeout)
-			buf = conn.recv(5000)
-			while buf:
-				data.append(buf)
-				conn.settimeout(0.03)
-				buf = conn.recv(4096)
-		except socket.timeout as e:
-			pass
-		except:
-			pass
-		data = b"".join(data)
-		ip=addr[0]
-		res,req=req_handler(data)
-		conn.sendall(res)
-		#print(res)
-		log_dump(ip,req,ld,logfile=lfile)
-		conn.close()
+		while True:
+			try:
+				data = []
+				timeout=imp_func.main_dict['timeout']
+				conn.settimeout(timeout)
+				print(f'Time2:{ctime()}') 
+				buf = conn.recv(5000)
+				if not buf:
+					conn.close()
+					break
+				print(f'Time3:{ctime()}')
+				try:
+					while buf:
+						data.append(buf)
+						print(f'Time4:{ctime()}')
+						conn.settimeout(0.01)   
+						buf = conn.recv(5000)
+						print(b"buf:"+buf)
+						print(f'Time5:{ctime()}')
+				except:
+						pass
+				#conn.settimeout(timeout) 
+				data = b"".join(data)
+				print(b"Data:"+data)
+				res, req, connection=req_handler(data)
+				log_dump(addr[0],req,ld,logfile=lfile)
+				#conn.settimeout(timeout)
+			except socket.timeout as e:
+				connection='close'
+				print(f'Time6:{ctime()}') 
+				res=res_body.err_response_body(408, Date, connection, content_length='0')
+				res=res.encode()
+
+			#print(res)
+			conn.sendall(res)
+
+			if connection == 'close':
+				conn.close()
+				print(f'Time7:{ctime()}') 
+				break
+			else:
+				print(f'Time8:{ctime()}')
+			#try:
+			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
+		#except:
+		#	print("Error creating new thread for conn", ip, ":", port)
+			
+	s.close()
 		#try:
 			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
 		#except:

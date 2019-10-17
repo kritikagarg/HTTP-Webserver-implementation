@@ -14,8 +14,6 @@ status_code_dic= main_dict['status_code']
 # res += res_headers
 # res +='\r\n'
 
-
-
 def success_response_body(method,sc, Date, last_modified, content_length, etag, content_type, connection): #last_modified,content_length
 	status="HTTP/1.1 "+str(sc)+' '+status_code_dic[sc]
 	res = status + '\r\n'
@@ -45,7 +43,7 @@ def redirect_response_body(method,sc, Date, loc, content_length, connection): #l
 	res += '\r\n'
 	return res
 
-def err_response_body(sc, Date, content_length, connection): 
+def err_response_body(sc, Date, connection, content_length): 
 	status="HTTP/1.1 "+str(sc)+' '+status_code_dic[sc]
 	res = status + '\r\n'
 	res += 'Date: ' + Date + '\r\n'

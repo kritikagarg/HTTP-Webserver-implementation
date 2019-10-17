@@ -58,6 +58,7 @@ def check_version(req):
 	return sc
 
 def check_method(req):
+	#print(req)
 	m=req[0][0]
 	check1= m.isalpha() and req[0][0].isupper()
 	if check1:
