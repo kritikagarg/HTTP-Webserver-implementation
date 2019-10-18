@@ -19,17 +19,17 @@ if len(sys.argv) > 2:
 
 #________________Logs______________________
 ld={}
-def log_dump(ip,req,ld, uid="-", uname="-", logfile=sys.stderr):
+def log_dump(ip,req, sc,ld, uid="-", uname="-", logfile=sys.stderr):
 	rl=" ".join(req[0])
 	logdate = now.strftime("%d/%b/%Y:%H:%M:%S +0000")
-	print(f'{ip} {uid} {uname} [{logdate}] "{rl}" {ld["status_code"]} {ld["content_length"]}', file=lfile)	
+	print(f'{ip} {uid} {uname} [{logdate}] "{rl}" {sc} {ld["content_length"]}', file=lfile)	
 	
 #____________________________________RESPONSE____________________________________
 ##CREATE res_headers_list : list of tuples
 
 def response_handler(sc, req, orignal_msg, connection, loc=None):
 	method=req[0][0]
-	ld["status_code"]=str(sc)
+	#ld["status_code"]=str(sc)
 	first_sc=str(sc)[:1]
 	content_length='0'
 	payload=None                  
@@ -54,11 +54,19 @@ def response_handler(sc, req, orignal_msg, connection, loc=None):
 	return res
 
 
-def req_handler(orignal_msg):
-	req, sc, loc= req_checker.check_request(parser.request_parser(data))
-	connection= imp_func.connect(req)
+def req_handler(parsed_dic,orignal_msg):
+	req=parsed_dic["req"]
+	if parsed_dic["bad_req"]:
+		sc=400
+		connection='close'
+	else:
+		#if parsed_dic["is_payload"]:
+			#parsed_dic["client_payload"]
+			#do something with client payload 
+		req, sc, loc= req_checker.check_request(req)
+		connection= imp_func.connect(req)
 	res = response_handler(sc, req, orignal_msg, connection, loc)
-	return res, req, connection 
+	return res, req, connection, sc 
 
 
 
@@ -101,18 +109,27 @@ if __name__ == "__main__":
 				#conn.settimeout(timeout) 
 				data = b"".join(data)
 				print(b"Data:"+data)
-				res, req, connection=req_handler(data)
-				log_dump(addr[0],req,ld,logfile=lfile)
-				#conn.settimeout(timeout)
+
+				while True:
+		#parsed_dic=dict(req=req, bad_req=BAD_R, is_payload=payload, client_payload=client_payload, is_residue=is_residue, residue=residue)
+					parsed_dic=parser.request_parser(data)
+					res, req, connection, sc = req_handler(parsed_dic, data)
+					conn.sendall(res)
+
+					log_dump(addr[0],req, sc, ld,logfile=lfile)
+
+					if parsed_dic["is_residue"]:
+						data=parsed_dic["residue"]
+					else:
+						break
+
 			except socket.timeout as e:
 				connection='close'
 				print(f'Time6:{ctime()}') 
-				res=res_body.err_response_body(408, Date, connection, content_length='0')
-				res=res.encode()
+				res=res_body.err_response_body(408, Date, connection, content_length='0', encode=True)
+				conn.sendall(res)
 
 			#print(res)
-			conn.sendall(res)
-
 			if connection == 'close':
 				conn.close()
 				print(f'Time7:{ctime()}') 

@@ -50,6 +50,7 @@ def connect(req):
 	return connection
 
 
+
 main_dict=load_yaml()
 docroot = main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)

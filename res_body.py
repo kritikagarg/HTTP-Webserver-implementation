@@ -4,7 +4,7 @@ Server="kitkat.0.1"
 
 main_dict=imp_func.main_dict
 status_code_dic= main_dict['status_code']
-
+connection="close"
 # def res_object(res_headers_list, sc , Date):  
 # status="HTTP/1.1 "+str(sc)+' '+status_code_dic[sc]
 # res = status + '\r\n'
@@ -43,7 +43,7 @@ def redirect_response_body(method,sc, Date, loc, content_length, connection): #l
 	res += '\r\n'
 	return res
 
-def err_response_body(sc, Date, connection, content_length): 
+def err_response_body(sc, Date, connection, content_length, encode=False): 
 	status="HTTP/1.1 "+str(sc)+' '+status_code_dic[sc]
 	res = status + '\r\n'
 	res += 'Date: ' + Date + '\r\n'
@@ -53,4 +53,6 @@ def err_response_body(sc, Date, connection, content_length):
 	if sc==405:
 		res += "Allow:" +'\r\n'
 	res += '\r\n'	
+	if encode:
+		res=res.encode()
 	return res
