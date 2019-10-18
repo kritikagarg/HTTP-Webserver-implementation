@@ -37,7 +37,7 @@ def response_handler(sc, req, orignal_msg, connection, loc=None):
 	if first_sc in {'4','5'}:
 		res=res_body.err_response_body(sc, Date, connection, content_length)
 	elif first_sc=='2':
-		content = imp_func.get_content(req)
+		content,c_path = imp_func.get_content(req)
 		payload, content_length = res_functions.content_attribute(method, content, orignal_msg)					
 		content_type = res_functions.get_content_type(method,content)
 		last_modified = str(format_date_time(os.stat(content).st_mtime))

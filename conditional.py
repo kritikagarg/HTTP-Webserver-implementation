@@ -82,7 +82,7 @@ def get_if_dict(req):
 
 def check_conditional_requests(req):
 	method=req[0][0]
-	content = imp_func.get_content(req)
+	content,c_path = imp_func.get_content(req)
 	last_modified = str(format_date_time(os.stat(content).st_mtime))
 	etag = e_tag.gen_etag(content)
 	if_dict=get_if_dict(req)

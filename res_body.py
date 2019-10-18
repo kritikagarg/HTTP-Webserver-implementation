@@ -1,10 +1,10 @@
 import imp_func
 
-Server="kitkat.0.1"
+Server="kitkat.2.0"
 
 main_dict=imp_func.main_dict
 status_code_dic= main_dict['status_code']
-connection="close"
+#connection="close"
 # def res_object(res_headers_list, sc , Date):  
 # status="HTTP/1.1 "+str(sc)+' '+status_code_dic[sc]
 # res = status + '\r\n'

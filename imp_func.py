@@ -40,7 +40,7 @@ def get_content(req):
 			else:
 				direc_list.dir_list(content)	
 				content=content+"index.html"
-	return content
+	return content,c_path
 
 def connect(req):
 	connection="keep-alive"

@@ -8,16 +8,6 @@ import imp_func
 import path_checker, conditional
 
 main_dict=imp_func.load_yaml()
-#----------------------------------------------------
-# def check_valid_path(req):
-# 	content=imp_func.get_content(req)
-# 	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
-# 	if exist:
-# 		sc=200  
-# 	else: 
-# 		sc=404
-# 		print("invalid path:"+content)	
-# 	return sc
 
 
 def check_headers(req):
@@ -100,8 +90,3 @@ def check_request(req):
 #req, sc=check_req_line(req)
 
 #print('status_code:'+str(sc))
-#print(req)
-#print(get_content(req))
-
-
-
