@@ -125,9 +125,3 @@ if __name__ == "__main__":
 		#	print("Error creating new thread for conn", ip, ":", port)
 			
 	s.close()
-		#try:
-			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
-		#except:
-		#	print("Error creating new thread for conn", ip, ":", port)
-			
-	s.close()
