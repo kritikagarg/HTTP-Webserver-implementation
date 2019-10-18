@@ -12,14 +12,13 @@ def content_attribute(method, content, orignal_msg):
 	payload=None
 	content_length=0
 	prop_dict=method_dict[method]
-	if prop_dict['payload']:
-		if prop_dict['echo']:
-			#print("Hey!...its TRACE")
-			payload=orignal_msg
-			content_length=len(payload)
-
-		else:
+	if prop_dict['echo']: #TRACE
+		payload=orignal_msg
+		content_length=len(payload)
+	else:
+		if prop_dict['payload']:
 			payload=open(content, "rb").read()
+		if prop_dict['content_length']:
 			content_length=os.path.getsize(content)	
 	return payload , str(content_length)
 
