@@ -38,7 +38,7 @@ def get_content(req):
 			if os.path.exists(content+"index.html"):
 				content=content+"index.html"
 			else:
-				direc_list.dir_list(content)	
+				direc_list.dir_list(c_path)	
 				content=content+"index.html"
 	return content,c_path
 
