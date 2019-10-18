@@ -84,16 +84,15 @@ def check_req_line(req):  #req_line=req[0]
 		print("invalid status line")	
 	return req, sc 
 
-def check_request(req,sc=None):
-	if not sc:
-		req,sc = check_req_line(req)
-		method=req[0][0]
-		loc = None
-		etag =None
-		if int(sc/100) == 2 :
-			sc, loc = path_checker.path_check(req)
-			if int(sc/100) == 2 and method in {'GET', 'HEAD'}:
-				sc, etag = conditional.check_conditional_requests(req) 
+def check_request(req):
+	req,sc = check_req_line(req)
+	method=req[0][0]
+	loc = None
+	etag =None
+	if int(sc/100) == 2 :
+		sc, loc = path_checker.path_check(req)
+		if int(sc/100) == 2 and method in {'GET', 'HEAD'}:
+			sc, etag = conditional.check_conditional_requests(req) 
 	return req, sc, loc
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]

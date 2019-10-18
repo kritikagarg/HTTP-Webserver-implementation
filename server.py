@@ -59,6 +59,7 @@ def req_handler(parsed_dic,orignal_msg):
 	if parsed_dic["bad_req"]:
 		sc=400
 		connection='close'
+		loc=None
 	else:
 		#if parsed_dic["is_payload"]:
 			#parsed_dic["client_payload"]
@@ -82,7 +83,7 @@ if __name__ == "__main__":
 	lfile=open(log_path,'a', buffering=1)
 	#timeout=imp_func.main_dict['timeout']
 	while True:
-		print(f'Time1:{ctime()}') 
+		#print(f'Time1:{ctime()}') 
 		conn, addr = s.accept()
 		print('accepted', conn, 'from', addr)
 		while True:
@@ -90,25 +91,25 @@ if __name__ == "__main__":
 				data = []
 				timeout=imp_func.main_dict['timeout']
 				conn.settimeout(timeout)
-				print(f'Time2:{ctime()}') 
+				#print(f'Time2:{ctime()}') 
 				buf = conn.recv(5000)
 				if not buf:
 					conn.close()
 					break
-				print(f'Time3:{ctime()}')
+				#print(f'Time3:{ctime()}')
 				try:
 					while buf:
 						data.append(buf)
-						print(f'Time4:{ctime()}')
+						#print(f'Time4:{ctime()}')
 						conn.settimeout(0.01)   
 						buf = conn.recv(5000)
-						print(b"buf:"+buf)
-						print(f'Time5:{ctime()}')
-				except:
+						#print(b"buf:"+buf)
+						#print(f'Time5:{ctime()}')
+				except socket.timeout as e:
 						pass
 				#conn.settimeout(timeout) 
 				data = b"".join(data)
-				print(b"Data:"+data)
+				#print(b"Data:"+data)
 
 				while True:
 		#parsed_dic=dict(req=req, bad_req=BAD_R, is_payload=payload, client_payload=client_payload, is_residue=is_residue, residue=residue)
@@ -125,20 +126,19 @@ if __name__ == "__main__":
 
 			except socket.timeout as e:
 				connection='close'
-				print(f'Time6:{ctime()}') 
+				#print(f'Time6:{ctime()}') 
 				res=res_body.err_response_body(408, Date, connection, content_length='0', encode=True)
 				conn.sendall(res)
+			except:
+				pass
 
 			#print(res)
 			if connection == 'close':
-				conn.close()
-				print(f'Time7:{ctime()}') 
+				conn.close() 
 				break
-			else:
-				print(f'Time8:{ctime()}')
+				#print(f'Time8:{ctime()}')
 			#try:
 			#Thread(target=handle_client, args=(conn, ip, port)).start()     ###check for IP
 		#except:
-		#	print("Error creating new thread for conn", ip, ":", port)
-			
+		#	print("Error creating new thread for conn", ip, ":", port)			
 	s.close()
