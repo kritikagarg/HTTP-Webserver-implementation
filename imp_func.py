@@ -1,8 +1,11 @@
+import sys
 import os
 import os.path 
 from urllib.parse import urlparse, unquote_plus
 from ruamel import yaml
 import direc_list
+import datetime
+
 
 virtual_uri="/.well-known/access.log"
 
@@ -31,7 +34,6 @@ def get_content(req):
 		content=log_path
 	else:	
 		#content=os.path.join(os.path.abspath(os.path.dirname(docroot)), path) --------> not working?
-		#content=os.path.join(docroot,path)
 		content=docroot+c_path
 
 		if os.path.isdir(content) and content.endswith('/'):
@@ -39,7 +41,7 @@ def get_content(req):
 				content=content+"index.html"
 			else:
 				direc_list.dir_list(content)	
-				content=content+"index.html"
+				content=content+"tmp_dirlist.html"
 	return content,c_path
 
 def connect(req):
@@ -50,12 +52,15 @@ def connect(req):
 	return connection
 
 
+def log_dump(ip,req, sc,ld, uid="-", uname="-", logfile=sys.stderr):
+	rl=" ".join(req[0])
+	logdate = datetime.datetime.utcnow().strftime("%d/%b/%Y:%H:%M:%S +0000")
+	print(f'{ip} {uid} {uname} [{logdate}] "{rl}" {sc} {ld["content_length"]}', file=logfile)	
+	
 
 main_dict=load_yaml()
 docroot = main_dict['Root_DIR']
 docroot = os.getenv("DOCROOT", docroot)
 
 log_dir = main_dict['log_dir']
-log_dir = os.getenv("LOG_DIR", log_dir)
-log_file = main_dict['log_file']
-log_path= log_dir+log_file
+log_path= os.getenv("LOG_DIR", log_dir) + main_dict['log_file']

@@ -45,7 +45,7 @@ template = env.get_template('index_temp.html')
 #p_name=os.path.basename(get_path(path))
 def dir_list(path):
     output=template.render(get_display_info(get_path(path)))
-    f=open(path+"index.html", 'w')
+    f=open(path+"tmp_dirlist.html", 'w')
     f.write(output)
 
 

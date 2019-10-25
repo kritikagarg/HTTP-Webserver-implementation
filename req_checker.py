@@ -5,7 +5,7 @@ import io
 import os
 import os.path
 import imp_func
-import path_checker, conditional
+import path_checker, conditional#, partial_check
 
 main_dict=imp_func.load_yaml()
 
@@ -79,10 +79,12 @@ def check_request(req):
 	method=req[0][0]
 	loc = None
 	etag =None
-	if int(sc/100) == 2 :
+	if sc == 200:
 		sc, loc = path_checker.path_check(req)
-		if int(sc/100) == 2 and method in {'GET', 'HEAD'}:
+		if sc == 200 and method in {'GET', 'HEAD'}:
 			sc, etag = conditional.check_conditional_requests(req) 
+			# if sc == 200 and method =="GET":
+			# 	sc = partial_check.check_partial(req)
 	return req, sc, loc
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
