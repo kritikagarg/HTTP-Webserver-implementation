@@ -63,19 +63,9 @@ def check_method(req):
 		print("Method not good")	
 	return sc
 
-def check_req_line(req):  #req_line=req[0]
-	req_line=req[0]
-	req_line = re.match("^([A-Z]+)\s+(\S+)\s+([\w\/\.]+)$", req_line.replace("\r", ""))
-	if req_line:	
-		req[0]=(req_line[1],req_line[2],req_line[3])
-		sc=check_method(req)
-	else:
-		sc=400
-		print("invalid status line")	
-	return req, sc 
 
 def check_request(req):
-	req,sc = check_req_line(req)
+	sc=check_method(req)
 	method=req[0][0]
 	loc = None
 	etag =None
@@ -85,7 +75,7 @@ def check_request(req):
 			sc, etag = conditional.check_conditional_requests(req) 
 			# if sc == 200 and method =="GET":
 			# 	sc = partial_check.check_partial(req)
-	return req, sc, loc
+	return sc, loc
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 

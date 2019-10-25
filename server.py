@@ -21,10 +21,10 @@ def req_handler(parsed_dic,orignal_msg):
 		#if parsed_dic["is_payload"]:
 			#parsed_dic["client_payload"]
 			#do something with client payload 
-		req, sc, loc= req_checker.check_request(req)
+		sc, loc= req_checker.check_request(req)
 		connection= imp_func.connect(req)
 	res = response.response_handler(sc, req, orignal_msg, connection, loc)
-	return res, req, connection, sc 
+	return res, connection, sc 
 
 def client_handler(conn,addr):
 	while True:
@@ -49,7 +49,8 @@ def client_handler(conn,addr):
 			while True:
 				#parsed_dic=dict(req=req, bad_req=BAD_R, is_payload=payload, client_payload=client_payload, is_residue=is_residue, residue=residue)
 				parsed_dic=parser.request_parser(data)
-				res, req, connection, sc = req_handler(parsed_dic, data)
+				req=parsed_dic["req"]
+				res, connection, sc = req_handler(parsed_dic, data)
 				conn.sendall(res)
 
 				imp_func.log_dump(addr[0],req, sc, response.ld ,logfile=lfile)
@@ -63,8 +64,8 @@ def client_handler(conn,addr):
 			connection='close'
 			res=response.res_object({'Content-Length':'0','Connection':connection}, 408, encode=True)		
 			conn.sendall(res)
-		#except:
-			#pass
+#		except:
+#			pass
 
 		if connection == 'close':
 			conn.close() 
