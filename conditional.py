@@ -98,7 +98,7 @@ def check_conditional_requests(req):
 		if "if-modified-since" in if_dict:
 			sc=check_modified(method,if_dict,last_modified)
 
-	return sc, etag
+	return sc
 
 
 			

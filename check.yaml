@@ -4,13 +4,18 @@ log_file: access.log
 
 timeout: 5
 
-language_encodings:
+language_encoding:
 - en
 - es
 - de
 - ja
 - ko
 - ru
+
+charset_encoding:
+ jis: iso-2022-jp
+ koi8-r: koi8-r
+ euc-kr: euc-kr
 
 methods:
  GET:

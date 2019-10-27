@@ -5,36 +5,32 @@ import io
 import os
 import os.path
 import imp_func
-import path_checker, conditional#, partial_check
+import path_checker, conditional, partial_check
 
 main_dict=imp_func.load_yaml()
 
 
 def check_headers(req):
 	sc=200
-	host_count=0                   
+	host_count=0
+	h_list=[]                   
 	for i in range(1,len(req)):
 		header=req[i][0]         # To take all cases of headers ..host,HOST
 		if header not in main_dict['reqheaders']:  #check for header supported, ex="      host  "  
 			sc=400
 			print("invalid header: "+(header))	
 		if header=="host":   
-			host_count+=1
+			h_list.append(req[i])
 			#print(host_count)	
-
-	chost=req[1][0]    #check if second line is Host or not		
-	if chost!= "host":
-		sc=400
-		print("Second line is not host")
+	if len(h_list)!=1:
+		sc=400		
+		print("more than 1 host present OR no host")
 	else:
-		host_field=req[1][1]             #check for the valid host field
+		host_field=h_list[0][1]             #check for the valid host field
 		valid=re.match("^[\w\.\-:]*$",host_field)
 		if not valid:
 			sc=400
 			print("invalid host field")
-	if host_count>1:
-		sc=400		
-		print("more than 1 host present")
 	return sc		
 
 def check_version(req):
@@ -68,14 +64,15 @@ def check_request(req):
 	sc=check_method(req)
 	method=req[0][0]
 	loc = None
-	etag =None
+	ndic =None
 	if sc == 200:
-		sc, loc = path_checker.path_check(req)
+		sc, loc, ndic = path_checker.path_check(req)
 		if sc == 200 and method in {'GET', 'HEAD'}:
-			sc, etag = conditional.check_conditional_requests(req) 
-			# if sc == 200 and method =="GET":
-			# 	sc = partial_check.check_partial(req)
-	return sc, loc
+			sc = conditional.check_conditional_requests(req) 
+			if sc == 200:
+				print("Doing partial checking")
+				sc = partial_check.check_partial(req)
+	return sc, loc, ndic
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 

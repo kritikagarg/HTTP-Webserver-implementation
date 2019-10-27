@@ -1,5 +1,5 @@
 import os, os.path
-import imp_func, res_functions, e_tag
+import imp_func, res_functions, e_tag, partial_check, negotiate
 import datetime
 from time import mktime, ctime
 from wsgiref.handlers import format_date_time
@@ -26,39 +26,93 @@ def res_object(res_headers, sc , encode=False):
 		res=res.encode()
 	return res
 
+def chunking(payload):
+	payload=payload.decode()
+	chunks=payload.split('\n')
+	p=[]
+	for i in zip(chunks[0::2], chunks[1::2]): 
+		chunk="\r\n".join(i)
+		len_chunk=hex(len(chunk))			
+		p.append(f"{len_chunk}\r\n{chunk}\r\n")
 
-def response_handler(sc, req, orignal_msg, connection, loc=None):
+	payload="\r\n".join(p)
+	return(str.encode(payload))
+
+
+
+def response_handler(sc, req, orignal_msg, connection, loc, ndic):
 	method=req[0][0]
 	#ld["status_code"]=str(sc)
 	first_sc=str(sc)[:1]
 	content_length='0'
 	payload=None
-	res_headers={}                  
-	if first_sc=='2':
-		content,c_path = imp_func.get_content(req)
-		payload, content_length = res_functions.content_attribute(method, content, orignal_msg)					
-		content_type = res_functions.get_content_type(method,content)
+	res_headers = {}
+	dynamic=False 
+	content_type='text/html'                 
+	if first_sc == '2':
+		content , c_path = imp_func.get_content(req)
+		extension, lang, charset = res_functions.find_ext(content)
+
 		if method!='TRACE':
 			last_modified = str(format_date_time(os.stat(content).st_mtime))
 			etag = e_tag.gen_etag(content)
 			res_headers={'Last-Modified':last_modified, 'Etag':etag}
-		if method=="OPTIONS":
-			res_headers["Allow"]="GET, HEAD, OPTIONS, TRACE"
 
+		if method == "OPTIONS":
+			res_headers["Allow"] = "GET, HEAD, OPTIONS, TRACE"
+
+		if sc==200:
+			payload, content_length = res_functions.content_attribute(method, content, orignal_msg)
+
+		if sc==206:
+			payload, content_length, content_range = partial_check.partial_content(method, content)
+			res_headers.update({'Content-Range': content_range})
+
+		if lang:
+			res_headers.update({'Content-Language':lang})
+
+		content_type = res_functions.get_content_type(method, extension, charset)
 		res_headers.update({'Content-Length':content_length, 'Content-Type':content_type})
+		#print(content)
+		p_name=os.path.basename(content)
+		if p_name=="tmpDL.html":
+			#print(1)
+			content_length='-'
+			dynamic=True
 
-	elif first_sc == '3' and sc!=304:
-		res_headers={'Location':loc}
+	else:
+		if sc !=304:
+			dynamic = True
+			#msg = "<html>\n<head>\n<title>#SC#</title>\n</head>\n<body>\n<h1>#SC#</h1>>\n<h2>#StatusMessage#</h2>\n</body>\n</html>\n"
+			msg = open("templates/meta_list.html",'r').read()
+			msg = msg.replace('#SC#', str(sc))
+			msg = msg.replace('#SM#', status_code_dic[sc])
+			if sc in {300,406}:
+				res_headers.update(ndic)
+				#msg = msg.replace('----', negotiate.mid)
 
-	res_headers.update({'Content-Length':content_length,'Connection':connection})
+			payload = str.encode(msg)
+			content_length=len(payload)
+
+		if sc in {301,302}:
+			res_headers={'Location':loc}
+
+
+	if dynamic:
+		res_headers.update({'Transfer-Encoding': 'chunked'})
+		if method!='HEAD':
+			payload=chunking(payload)
+
+	elif method=='GET':
+		res_headers.update({'Accept-Range': 'bytes'})
+
+
+	res_headers.update({'Content-Length':content_length, 'Content-Type':content_type,'Connection':connection})
 	res=res_object(res_headers, sc)
 	#print(res)
 	res=res.encode()
 	ld["content_length"] = content_length
-	if payload:
+	if payload and method!='HEAD':
 		res = res + payload
 	return res
-
-
-
 

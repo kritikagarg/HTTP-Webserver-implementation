@@ -41,7 +41,7 @@ def get_content(req):
 				content=content+"index.html"
 			else:
 				direc_list.dir_list(content)	
-				content=content+"tmp_dirlist.html"
+				content=content+"tmpDL.html"
 	return content,c_path
 
 def connect(req):

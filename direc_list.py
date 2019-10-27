@@ -2,7 +2,7 @@ import os
 import os.path
 import jinja2
 from datetime import datetime
-
+import imp_func
 
 def get_path(path):
     if path.endswith('/'):
@@ -13,6 +13,7 @@ def get_time(t):
     return datetime.fromtimestamp(t).strftime("%Y-%m-%d  %H:%M")
 
 def get_display_info(path):
+    pp=path.replace(imp_func.docroot,'.')
     dis=dict(parent=path, p_name=os.path.basename(path), folder=[])
     with os.scandir(path) as it:
         for item in it:
@@ -28,6 +29,7 @@ def get_display_info(path):
                 #new_path=os.path.join(path,fname)
                 #link=dir_list(new_path)
             link=os.path.join(path,fname)
+            link=link.replace(imp_func.docroot,'.')
             info = item.stat()
             item_info = dict(name=fname, size=info.st_size, time=get_time(info.st_mtime), link=link, icon=icon, alt=alt)
             dis["folder"].append(item_info)
@@ -45,7 +47,7 @@ template = env.get_template('index_temp.html')
 #p_name=os.path.basename(get_path(path))
 def dir_list(path):
     output=template.render(get_display_info(get_path(path)))
-    f=open(path+"tmp_dirlist.html", 'w')
+    f=open(path+"tmpDL.html", 'w')
     f.write(output)
 
 
