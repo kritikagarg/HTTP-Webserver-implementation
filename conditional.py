@@ -80,9 +80,8 @@ def get_if_dict(req):
 	return if_dict
 
 
-def check_conditional_requests(req):
+def check_conditional_requests(req, content):
 	method=req[0][0]
-	content,c_path = imp_func.get_content(req)
 	last_modified = str(format_date_time(os.stat(content).st_mtime))
 	etag = e_tag.gen_etag(content)
 	if_dict=get_if_dict(req)

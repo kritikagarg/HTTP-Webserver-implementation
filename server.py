@@ -15,17 +15,17 @@ if len(sys.argv) > 2:
 def req_handler(parsed_dic,orignal_msg):
 	req=parsed_dic["req"]
 	connection='close'
-	loc,ndic=None,None
+	loc,ndic,content=None,None,None
 	if parsed_dic["bad_req"]:
 		sc=400
 	else:
 		#if parsed_dic["is_payload"]:
 			#parsed_dic["client_payload"]
 			#do something with client payload 
-		sc, loc, ndic = req_checker.check_request(req)
+		sc, loc, ndic, content = req_checker.check_request(req)
 		#print(loc)
 		connection= imp_func.connect(req)
-	res = response.response_handler(sc, req, orignal_msg, connection, loc, ndic)
+	res = response.response_handler(sc, req, orignal_msg, connection, loc, ndic, content)
 	return res, connection, sc 
 
 def client_handler(conn,addr):

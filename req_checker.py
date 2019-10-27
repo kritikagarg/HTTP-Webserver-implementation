@@ -61,18 +61,19 @@ def check_method(req):
 
 
 def check_request(req):
+	content,c_path = imp_func.get_content(req)
 	sc=check_method(req)
 	method=req[0][0]
 	loc = None
 	ndic =None
 	if sc == 200:
-		sc, loc, ndic = path_checker.path_check(req)
+		sc, loc, ndic, content = path_checker.path_check(req)
 		if sc == 200 and method in {'GET', 'HEAD'}:
-			sc = conditional.check_conditional_requests(req) 
+			sc = conditional.check_conditional_requests(req, content) 
 			if sc == 200:
 				print("Doing partial checking")
 				sc = partial_check.check_partial(req)
-	return sc, loc, ndic
+	return sc, loc, ndic , content
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
 
