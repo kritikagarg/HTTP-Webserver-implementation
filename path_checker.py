@@ -20,10 +20,6 @@ def check_path_existence(content,c_path, req):
 		sc,loc=check_if_directory(content,c_path)
 	else: 
 		ndic, sc, content = nego.con_negotiate(content,req)
-		#ndic, sc = negotiate.check_negotiation(content,req)
-		# if not ndic:		 
-		# 	sc=404
-		# 	print("invalid path:"+content)
 	return sc,loc,ndic, content
 
 

@@ -4,6 +4,11 @@ log_file: access.log
 
 timeout: 5
 
+compression:
+ Z: compress
+ gz: gzip
+
+
 language_encoding:
 - en
 - es

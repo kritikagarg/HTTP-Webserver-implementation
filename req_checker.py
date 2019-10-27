@@ -9,7 +9,6 @@ import path_checker, conditional, partial_check
 
 main_dict=imp_func.load_yaml()
 
-
 def check_headers(req):
 	sc=200
 	host_count=0

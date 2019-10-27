@@ -51,7 +51,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	content_type='text/html'                 
 	if first_sc == '2':
 		#content , c_path = imp_func.get_content(req)
-		extension, lang, charset = res_functions.find_ext(content)
+		comp, extension, lang, charset = res_functions.find_ext(content)
 
 		if method!='TRACE':
 			last_modified = str(format_date_time(os.stat(content).st_mtime))
@@ -70,8 +70,13 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 
 		if lang:
 			res_headers.update({'Content-Language':lang})
+		if comp:
+			res_headers.update({'Content-Encoding':comp})
 
-		content_type = res_functions.get_content_type(method, extension, charset)
+		content_type = res_functions.get_content_type(extension, charset)
+		if method=="TRACE":
+			content_type="message/http"
+
 		res_headers.update({'Content-Length':content_length, 'Content-Type':content_type})
 		#print(content)
 		p_name=os.path.basename(content)
