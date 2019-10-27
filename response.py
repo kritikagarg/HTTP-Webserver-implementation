@@ -75,8 +75,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic):
 		res_headers.update({'Content-Length':content_length, 'Content-Type':content_type})
 		#print(content)
 		p_name=os.path.basename(content)
-		if p_name=="tmpDL.html":
-			#print(1)
+		if p_name=="tmpDL.html" and method!='TRACE':
 			content_length='-'
 			dynamic=True
 
