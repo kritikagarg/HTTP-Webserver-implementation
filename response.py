@@ -50,7 +50,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	dynamic=False 
 	content_type='text/html'                 
 	if first_sc == '2':
-		#content , c_path = imp_func.get_content(req)
+		content1 , c_path = imp_func.get_content(req)
 		comp, extension, lang, charset = res_functions.find_ext(content)
 
 		if method!='TRACE':
@@ -112,6 +112,9 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 
 	elif method=='GET':
 		res_headers.update({'Accept-Range': 'bytes'})
+
+	if content1 != content:
+		res_headers.update({"Content-Location":content.replace(imp_func.docroot,'')})
 
 
 	res_headers.update({'Content-Type':content_type,'Connection':connection})
