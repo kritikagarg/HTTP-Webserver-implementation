@@ -48,6 +48,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	payload=None
 	res_headers = {}
 	dynamic=False 
+	content1=content
 	content_type='text/html'                 
 	if first_sc == '2':
 		content1 , c_path = imp_func.get_content(req)
@@ -113,8 +114,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	elif method=='GET':
 		res_headers.update({'Accept-Range': 'bytes'})
 
-	if content1 != content:
-		res_headers.update({"Content-Location":content.replace(imp_func.docroot,'')})
+
 
 
 	res_headers.update({'Content-Type':content_type,'Connection':connection})
