@@ -32,10 +32,10 @@ def chunking(payload):
 	p=[]
 	for i in zip(chunks[0::2], chunks[1::2]): 
 		chunk="\r\n".join(i)
-		len_chunk=hex(len(chunk))			
+		len_chunk=hex(len(chunk))[2:]
 		p.append(f"{len_chunk}\r\n{chunk}\r\n")
 
-	payload="\r\n".join(p)
+	payload="\r\n".join(p)+'0'
 	return(str.encode(payload))
 
 
