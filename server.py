@@ -66,8 +66,8 @@ def client_handler(conn,addr):
 			connection='close'
 			res=response.res_object({'Content-Length':'0','Connection':connection}, 408, encode=True)		
 			conn.sendall(res)
-#		except:
-#			pass
+		except:
+			pass
 
 		if connection == 'close':
 			conn.close() 
