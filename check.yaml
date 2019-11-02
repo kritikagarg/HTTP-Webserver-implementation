@@ -1,13 +1,13 @@
-Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A3/cs531
-log_dir: /home/kgarg/classwork/fall19/webserverDesign/A3/cs531/logs/
+Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531
+log_dir: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531/logs/
 log_file: access.log
+Auth: WeMustProtectThisHouse!
 
 timeout: 5
 
 compression:
  Z: compress
  gz: gzip
-
 
 language_encoding:
 - en
@@ -66,6 +66,7 @@ status_code:
   302: Found 
   304: Not Modified
   400: Bad Request
+  401: Unauthorized
   403: Forbidden
   404: Not Found
   406: Not Acceptable

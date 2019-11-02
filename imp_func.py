@@ -52,6 +52,14 @@ def connect(req):
 	return connection
 
 
+def get_reqheader_value(header, req):
+	val=[]
+	for tup in req:  ##need to feed in req
+		if header in tup[0]:
+			val.append(tup)
+	return val
+	
+
 def log_dump(ip,req, sc,ld, uid="-", uname="-", logfile=sys.stderr):
 	rl=" ".join(req[0])
 	logdate = datetime.datetime.utcnow().strftime("%d/%b/%Y:%H:%M:%S +0000")

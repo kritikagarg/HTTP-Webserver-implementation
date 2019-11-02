@@ -5,7 +5,7 @@ import io
 import os
 import os.path
 import imp_func
-import path_checker, conditional, partial_check
+import path_checker, conditional, partial_check, authorize
 
 main_dict=imp_func.load_yaml()
 
@@ -65,13 +65,23 @@ def check_request(req):
 	method=req[0][0]
 	loc = None
 	ndic =None
-	if sc == 200:
-		sc, loc, ndic, content = path_checker.path_check(req)
-		if sc == 200 and method in {'GET', 'HEAD'}:
-			sc = conditional.check_conditional_requests(req, content) 
-			if sc == 200:
-				print("Doing partial checking")
-				sc = partial_check.check_partial(req)
+	auth_val=imp_func.get_reqheader_value("authorization", req)
+	if auth_val:
+		l=len(auth_val)
+		if l==1:
+			sc=authorize.check_authorised(content, auth_val[0][1])
+		if l>1:
+			sc=400
+	else:
+		if sc == 200:
+			sc, loc, ndic, content = path_checker.path_check(req)
+			if sc == 200 and method in {'GET', 'HEAD'}:
+				sc = conditional.check_conditional_requests(req, content) 
+				if sc == 200:
+					sc = partial_check.check_partial(req)
+		if not auth_val and sc == 200:
+			print(1)
+			sc=authorize.check_authorised(content)
 	return sc, loc, ndic , content
 
 #req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]

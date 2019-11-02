@@ -1,5 +1,5 @@
 import os, os.path
-import imp_func, res_functions, e_tag, partial_check, nego
+import imp_func, res_functions, e_tag, partial_check, nego, authorize
 import datetime
 from time import mktime, ctime
 from wsgiref.handlers import format_date_time
@@ -48,7 +48,6 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	payload=None
 	res_headers = {}
 	dynamic=False 
-	content1=content
 	content_type='text/html'                 
 	if first_sc == '2':
 		content1 , c_path = imp_func.get_content(req)
@@ -57,10 +56,10 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 		if method!='TRACE':
 			last_modified = str(format_date_time(os.stat(content).st_mtime))
 			etag = e_tag.gen_etag(content)
-			res_headers={'Last-Modified':last_modified, 'Etag':etag}
+			res_headers.update({'Last-Modified':last_modified, 'Etag':etag})
 
-		if method == "OPTIONS":
-			res_headers["Allow"] = "GET, HEAD, OPTIONS, TRACE"
+		if content1!=content:
+			res_headers.update({'Content-Location':content.replace(imp_func.docroot,'')})
 
 		if sc==200:
 			payload, content_length = res_functions.content_attribute(method, content, orignal_msg)
@@ -75,9 +74,6 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 			res_headers.update({'Content-Encoding':comp})
 
 		content_type = res_functions.get_content_type(extension, charset)
-		if method=="TRACE":
-			content_type="message/http"
-
 		res_headers.update({'Content-Length':content_length, 'Content-Type':content_type})
 		#print(content)
 		p_name=os.path.basename(content)
@@ -100,6 +96,16 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 
 		if sc in {301,302}:
 			res_headers.update({'Location':loc})
+
+		if sc == 401:
+			res_headers.update(authorize.auth_dic)
+		#-----------------------------------------------------------------------#
+	if method=="TRACE":
+		content_type="message/http"
+
+	if method == "OPTIONS":
+		res_headers["Allow"] = "GET, HEAD, OPTIONS, TRACE"
+
 	if ndic:
 		res_headers.update(ndic)
 
@@ -113,8 +119,6 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 
 	elif method=='GET':
 		res_headers.update({'Accept-Range': 'bytes'})
-
-
 
 
 	res_headers.update({'Content-Type':content_type,'Connection':connection})

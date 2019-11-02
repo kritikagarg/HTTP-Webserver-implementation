@@ -1,16 +1,8 @@
 import os
 import mimetypes
-import res_functions
+import res_functions, imp_func
 
 big_d={}
-
-def get_reqheader_value(header, req):
-	val=[]
-	for tup in req:  ##need to feed in req
-		if header in tup[0]:
-			val.append(tup)
-	return val
-
 
 def get_fileList(f_name, f_path):
 	fileList=[]
@@ -71,7 +63,7 @@ def con_negotiate(content,req):
 		sc=300
 		fs, mid=get_fs(fileList)
 		big_d["mid"]=get_mid(mid)
-		val=get_reqheader_value("accept", req)
+		val=imp_func.get_reqheader_value("accept", req)
 		if not val:
 			ndic.update({'Alternates':fs})
 		if val:
