@@ -4,7 +4,7 @@ LABEL maintainer="Kritika Garg <@kritikagarg7>"
 
 ENV  PYTHONUNBUFFERED=1
 ENV  DOCROOT=/var/www/cs531server
-ENV  LOG_DIR=/var/logs/
+ENV  LOG_DIR= $DOCROOT/logs/
 
 ADD  sample/* $DOCROOT/
 ADD  logs/* $LOG_DIR/
