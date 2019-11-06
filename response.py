@@ -43,13 +43,12 @@ def chunking(payload):
 def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	method=req[0][0]
 	#ld["status_code"]=str(sc)
-	first_sc=str(sc)[:1]
 	content_length='0'
 	payload=None
 	res_headers = {}
 	dynamic=False 
 	content_type='text/html'                 
-	if first_sc == '2':
+	if int(sc/100) == 2:
 		content1 , c_path = imp_func.get_content(req)
 		comp, extension, lang, charset = res_functions.find_ext(content)
 
@@ -66,6 +65,10 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 
 		if sc==206:
 			payload, content_length, content_range = partial_check.partial_content(method, content)
+			if len(payload)==0:
+				sc=416
+
+
 			res_headers.update({'Content-Range': content_range})
 
 		if lang:
@@ -81,7 +84,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 			content_length='-'
 			dynamic=True
 
-	else:
+	if int(sc/100) != 2:
 		if sc !=304:
 			dynamic = True
 			#msg = "<html>\n<head>\n<title>#SC#</title>\n</head>\n<body>\n<h1>#SC#</h1>>\n<h2>#StatusMessage#</h2>\n</body>\n</html>\n"

@@ -65,8 +65,8 @@ def partial_content(method, content):
 	content_length=0
 	payload = partial_payload(content)
 	content_length = len(payload)
-	if method=='HEAD':
-		payload=None
 	size=op.getsize(content)
 	content_range = f"{rl['unit']} {rl['start']}-{rl['end']}/{size}"
+	if content_length==0:
+		content_range=f"{rl['unit']} */{size}"
 	return payload, content_length, content_range
