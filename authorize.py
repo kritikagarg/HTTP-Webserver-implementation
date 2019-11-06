@@ -50,17 +50,23 @@ def digest_auth(auth_val,file,wwwA, method):
 		auth_val= auth_val[0][1]
 		atype,val=auth_val.strip().split(' ',1)
 		vd=parse_aval(val.split(', '))
-		c_digest=vd['response']
-		print(c_digest)
-		A1=fgrep(file, vd['username']) 
-		A2=f"{method}:{vd['uri']}"
-		A2=hashlib.md5(str.encode(A2)).hexdigest()
-		s_digest=f"{A1}:{vd['nonce']}:{vd['nc']}:{vd['cnonce']}:{vd['qop']}:{A2}"
-		s_digest=hashlib.md5(str.encode(s_digest)).hexdigest()
-		if s_digest==c_digest:
-			sc=200
-			auth_dic["Authentication-Info"]=f"Digest {val}" #cal new cnonce,
-			print(1)
+		realm=fgrep(file,'realm')
+		print(realm)
+		print(vd['realm'])
+		if realm.strip('\"') != vd['realm']:
+			sc=401
+		else:
+			c_digest=vd['response']
+			print(c_digest)
+			A1=fgrep(file, vd['username']) 
+			A2=f"{method}:{vd['uri']}"
+			A2=hashlib.md5(str.encode(A2)).hexdigest()
+			s_digest=f"{A1}:{vd['nonce']}:{vd['nc']}:{vd['cnonce']}:{vd['qop']}:{A2}"
+			s_digest=hashlib.md5(str.encode(s_digest)).hexdigest()
+			if s_digest==c_digest:
+				sc=200
+				auth_dic["Authentication-Info"]=f"Digest {val}" #cal new cnonce,
+				print(1)
 	else:
 		print(2)
 		if "Authentication-Info" in auth_dic:

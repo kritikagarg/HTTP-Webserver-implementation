@@ -73,7 +73,7 @@ status_code:
   406: Not Acceptable
   408: Request Timeout
   412: Precondition Failed
-  416: Requested Range Not Satisfiable
+  416: Range Not Satisfiable
   500: Internal Server Error
   501: Not Implemented
   505: HTTP Version Not Supported
