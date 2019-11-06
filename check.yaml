@@ -2,6 +2,7 @@ Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531
 log_dir: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531/logs/
 log_file: access.log
 Auth: WeMustProtectThisHouse!
+priv_key: "COOLserver"
 
 timeout: 5
 

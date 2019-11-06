@@ -97,8 +97,8 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 		if sc in {301,302}:
 			res_headers.update({'Location':loc})
 
-		if sc == 401:
-			res_headers.update(authorize.auth_dic)
+		#if sc == 401:
+	res_headers.update(authorize.auth_dic)
 		#-----------------------------------------------------------------------#
 	if method=="TRACE":
 		content_type="message/http"

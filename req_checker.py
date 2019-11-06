@@ -66,26 +66,14 @@ def check_request(req):
 	loc = None
 	ndic =None
 	auth_val=imp_func.get_reqheader_value("authorization", req)
-	if auth_val:
-		l=len(auth_val)
-		if l==1:
-			sc=authorize.check_authorised(content, auth_val[0][1])
-		if l>1:
-			sc=400
-	else:
+	if len(auth_val) > 1:
+		sc=400
+	elif sc==200:
+		sc=authorize.check_authorised(content, method,auth_val)
 		if sc == 200:
 			sc, loc, ndic, content = path_checker.path_check(req)
 			if sc == 200 and method in {'GET', 'HEAD'}:
 				sc = conditional.check_conditional_requests(req, content) 
 				if sc == 200:
 					sc = partial_check.check_partial(req)
-		if not auth_val and sc == 200:
-			print(1)
-			sc=authorize.check_authorised(content)
 	return sc, loc, ndic , content
-
-#req=['GET http://127.0.0.1:8080/a1-test/2/index.html HTTP/1.1', ('host', '127.0.0.1:8080'), ('Connection', 'close')]
-
-#req, sc=check_req_line(req)
-
-#print('status_code:'+str(sc))
