@@ -1,6 +1,7 @@
 import sys, os , os.path, re
 import hashlib, base64
-import imp_func
+import imp_func, e_tag
+from time import time
 #if 200 at end ... check authorisation
 
 Auth=imp_func.main_dict['Auth']
@@ -8,15 +9,10 @@ docroot=imp_func.docroot
 auth_dic={}
 pk=imp_func.main_dict['priv_key']
 
-
-
-
 def fgrep(file, wrd):
 	val=None
-	print(wrd)
 	for line in file:
 		if line.startswith(wrd):
-			print("found")
 			if "=" in line:
 				k,val=line.split('=')
 			elif ":" in line:
@@ -24,35 +20,26 @@ def fgrep(file, wrd):
 			break
 	return val
 
-
-#____________________________________________________________
-
-
-
-
-# def gen_server_digest(vd,file, method):
-# 	A1=fgrep(file, vd['username'])
-# 	A2=f"{method}:{vd['uri']}"
-# 	print(A1)
-# 	print(A2)
-
-
-
-
+#nonce= base64(time-stamp md5(time-stamp:ETag:private-key))
+def gen_nonce(etag):
+	ts=time()
+	nonce=hashlib.md5(str.encode(f'{ts}:{etag}:{pk}')).hexdigest()
+	k=f'{ts} {nonce}'
+	nonce=base64.b64encode(k.encode()).decode()
+	return nonce
 
 #request_digest = md5(md5(A1):nonce:ncount:cnonce:qop:md5(A2))
 
-def digest_auth(auth_val,file,wwwA, method):
+def digest_auth(auth_val,file,wwwA, content, method):
 	sc=401
-	nonce=500 #gen_nonce()
+	etag = e_tag.gen_etag(content)
+	nonce=gen_nonce(etag)
 	auth_dic["WWW-Authenticate"]=wwwA+ f', algorithm=MD5, qop="auth", nonce="{nonce}"'
 	if auth_val:
 		auth_val= auth_val[0][1]
 		atype,val=auth_val.strip().split(' ',1)
 		vd=parse_aval(val.split(', '))
 		realm=fgrep(file,'realm')
-		print(realm)
-		print(vd['realm'])
 		if realm.strip('\"') != vd['realm']:
 			sc=401
 		else:
@@ -61,16 +48,22 @@ def digest_auth(auth_val,file,wwwA, method):
 			A1=fgrep(file, vd['username']) 
 			A2=f"{method}:{vd['uri']}"
 			A2=hashlib.md5(str.encode(A2)).hexdigest()
-			s_digest=f"{A1}:{vd['nonce']}:{vd['nc']}:{vd['cnonce']}:{vd['qop']}:{A2}"
+			cnonce=vd['cnonce']
+			qop=vd['qop']
+			nc=vd['nc']
+			s_digest=f"{A1}:{vd['nonce']}:{nc}:{cnonce}:{qop}:{A2}"
 			s_digest=hashlib.md5(str.encode(s_digest)).hexdigest()
 			if s_digest==c_digest:
 				sc=200
-				auth_dic["Authentication-Info"]=f"Digest {val}" #cal new cnonce,
+				A2=f":{vd['uri']}"
+				A2=hashlib.md5(str.encode(A2)).hexdigest()
+				rspauth=f"{A1}:{vd['nonce']}:{nc}:{cnonce}:{qop}:{A2}"
+				rspauth=hashlib.md5(str.encode(rspauth)).hexdigest()
+				op=f'Digest rspauth="{rspauth}", cnonce="{cnonce}", nc={nc}, qop={qop}'
+				auth_dic["Authentication-Info"]= op
 				print(1)
 	else:
-		print(2)
 		if "Authentication-Info" in auth_dic:
-			print(3)
 			del auth_dic["Authentication-Info"]
 	return sc
 
@@ -91,7 +84,7 @@ def basic_auth(auth_val,file,wwwA):
 	return sc
 
 
-def check_atype(auth_val, file, method):
+def check_atype(auth_val, file, content, method):
 	sc=401
 	atype=fgrep(file, 'authorization-type')
 	wwwA=atype
@@ -102,7 +95,7 @@ def check_atype(auth_val, file, method):
 	if atype=='Basic':
 		sc=basic_auth(auth_val,file,wwwA)
 	elif atype=='Digest':
-		sc=digest_auth(auth_val,file, wwwA, method)
+		sc=digest_auth(auth_val,file, wwwA, content, method)
 	return sc	
 
 
@@ -113,7 +106,7 @@ def parse_aval(s):
 			dic[k]=v.strip('\"')
 	return dic
 
-def check_protection(f_path, method, auth_val):
+def check_protection(f_path, method, content, auth_val):
 	sc=200
 	while True:
 		fprotect=os.path.join(f_path,Auth)
@@ -122,7 +115,7 @@ def check_protection(f_path, method, auth_val):
 			sc=401
 			print(f"filefound at {f_path}")
 			file=open(fprotect, 'r').read().splitlines()
-			sc=check_atype(auth_val, file, method)
+			sc=check_atype(auth_val, file, content, method)
 			break
 		else:
 			try:
@@ -138,23 +131,5 @@ def check_protection(f_path, method, auth_val):
 def check_authorised(content, method, auth_val=None):
 	f_name=os.path.basename(content)
 	f_path=content.strip(f_name)	
-	sc=check_protection(f_path, method, auth_val)
+	sc=check_protection(f_path, method, content, auth_val)
 	return sc
-
-#content=sys.argv[1]
-
-#print(check_protection(content))
-
-
-
-
-#def authorised():
-
-
-
-# if not authorised:
-# 	sc=401
-# else:
-# 	sc=200
-# return sc
-
