@@ -40,6 +40,8 @@ def digest_auth(auth_val,file,wwwA, content, method):
 		atype,val=auth_val.strip().split(' ',1)
 		vd=parse_aval(val.split(', '))
 		realm=fgrep(file,'realm')
+		opaque=hashlib.md5(str.encode(f"{vd['uri']}:{pk}")).hexdigest()
+		auth_dic["WWW-Authenticate"]=wwwA+ f', algorithm=MD5, qop="auth", nonce="{nonce}", opaque="{opaque}"'
 		if realm.strip('\"') != vd['realm']:
 			sc=401
 		else:
