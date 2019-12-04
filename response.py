@@ -35,12 +35,12 @@ def chunking(payload):
 		len_chunk=hex(len(chunk))[2:]
 		p.append(f"{len_chunk}\r\n{chunk}\r\n")
 
-	payload="\r\n".join(p)+'0'
+	payload="\r\n".join(p)+"0\r\n\r\n"
 	return(str.encode(payload))
 
 
 
-def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
+def response_handler(sc, req, orignal_msg, connection, allow, loc, ndic, content, auth_dic):
 	method=req[0][0]
 	#ld["status_code"]=str(sc)
 	content_length='0'
@@ -48,7 +48,7 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 	res_headers = {}
 	dynamic=False 
 	content_type='text/html'                 
-	if int(sc/100) == 2:
+	if int(sc/100) == 2 and method!='DELETE':
 		content1 , c_path = imp_func.get_content(req)
 		comp, extension, lang, charset = res_functions.find_ext(content)
 
@@ -67,8 +67,6 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 			payload, content_length, content_range = partial_check.partial_content(method, content)
 			if len(payload)==0:
 				sc=416
-
-
 			res_headers.update({'Content-Range': content_range})
 
 		if lang:
@@ -101,16 +99,27 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 			res_headers.update({'Location':loc})
 
 		#if sc == 401:
-	res_headers.update(authorize.auth_dic)
+	res_headers.update(auth_dic)
+
+
 		#-----------------------------------------------------------------------#
+
 	if method=="TRACE":
 		content_type="message/http"
 
-	if method == "OPTIONS":
-		res_headers["Allow"] = "GET, HEAD, OPTIONS, TRACE"
+	if method == "OPTIONS" or sc==405:
+		allow=", ".join(allow)
+		res_headers["Allow"] = allow
 
 	if ndic:
 		res_headers.update(ndic)
+
+	res_headers.update({'Content-Type':content_type,'Connection':connection})
+
+	if method=="DELETE" and sc ==200:
+		payload=b"<html>\r\n<body>\r\n<h1>File deleted.</h1>\r\n</body>\r\n</html>"
+		res_headers={}
+		dynamic= True
 
 	res_headers.update({'Content-Length':content_length})
 
@@ -124,12 +133,12 @@ def response_handler(sc, req, orignal_msg, connection, loc, ndic, content):
 		res_headers.update({'Accept-Range': 'bytes'})
 
 
-	res_headers.update({'Content-Type':content_type,'Connection':connection})
 	res=res_object(res_headers, sc)
 	#print(res)
 	res=res.encode()
 	ld["content_length"] = content_length
 	if payload and method!='HEAD':
 		res = res + payload
+	#print(res)
 	return res
 

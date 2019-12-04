@@ -5,7 +5,7 @@ import io
 import os
 import os.path
 import imp_func
-import path_checker, conditional, partial_check, authorize
+import path_checker, conditional, partial_check, authorize, unsafe
 
 main_dict=imp_func.load_yaml()
 
@@ -59,21 +59,26 @@ def check_method(req):
 	return sc
 
 
-def check_request(req):
+def check_request(req, client_payload):
 	content,c_path = imp_func.get_content(req)
 	sc=check_method(req)
 	method=req[0][0]
 	loc = None
-	ndic =None
+	ndic,auth_dic =None,{}
+	allow=[]
 	auth_val=imp_func.get_reqheader_value("authorization", req)
 	if len(auth_val) > 1:
 		sc=400
 	elif sc==200:
-		sc=authorize.check_authorised(content, method,auth_val)
+		sc, allow, auth_dic=authorize.check_authorised(content, method, client_payload, auth_val)
+		#print(sc)
 		if sc == 200:
-			sc, loc, ndic, content = path_checker.path_check(req)
-			if sc == 200 and method in {'GET', 'HEAD'}:
-				sc = conditional.check_conditional_requests(req, content) 
-				if sc == 200:
-					sc = partial_check.check_partial(req)
-	return sc, loc, ndic , content
+			if method in {'DELETE','PUT'}:
+				sc = unsafe.unsafe_method_handler(req, client_payload)
+			else:
+				sc, loc, ndic, content = path_checker.path_check(req)
+				if sc == 200 and method in {'GET', 'HEAD'}:
+					sc = conditional.check_conditional_requests(req, content) 
+					if sc == 200:
+						sc = partial_check.check_partial(req)
+	return sc, allow, auth_dic, loc, ndic , content

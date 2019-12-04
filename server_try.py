@@ -14,22 +14,18 @@ if len(sys.argv) > 2:
 
 def req_handler(parsed_dic,orignal_msg):
 	req=parsed_dic["req"]
-	#print(req)
 	connection='close'
-	allow,loc,ndic,content=None,None,None,None
-	auth_dic={}
+	loc,ndic,content=None,None,None
 	if parsed_dic["bad_req"]:
 		sc=400
 	else:
-		client_payload=None
-		if parsed_dic["is_payload"]:
-			client_payload=parsed_dic["client_payload"]
+		#if parsed_dic["is_payload"]:
+			#parsed_dic["client_payload"]
 			#do something with client payload 
-		sc, allow, auth_dic, loc, ndic, content= req_checker.check_request(req, client_payload)
+		sc, loc, ndic, content = req_checker.check_request(req)
 		#print(loc)
 		connection= imp_func.connect(req)
-	res = response.response_handler(sc, req, orignal_msg, connection, allow, loc, ndic, content, auth_dic)
-	#print(res)
+	res = response.response_handler(sc, req, orignal_msg, connection, loc, ndic, content)
 	return res, connection, sc 
 
 def client_handler(conn,addr):
@@ -39,17 +35,24 @@ def client_handler(conn,addr):
 			timeout=imp_func.main_dict['timeout']
 			conn.settimeout(timeout)
 			buf = conn.recv(5000)
-			if not buf:
-				conn.close()
-				break
-			try:
-				while buf:
-					data.append(buf)
-					conn.settimeout(0.01)   
-					buf = conn.recv(5000)
+			n=0
+			#try:
+			while True:
+				print(buf)
+				data.append(buf)
+				#conn.settimeout(0.05)   
+				buf = conn.recv(1024)
+				if buf==b'\r\n':
+					print(1)
+					n=+1
+				if n>=2:
+					break
+					print(2)
+				print(n)
 
-			except socket.timeout as e:
-					pass
+			# except socket.timeout as e:
+			# 		pass
+
 			data = b"".join(data)
 
 			while True:
@@ -57,7 +60,6 @@ def client_handler(conn,addr):
 				parsed_dic=parser.request_parser(data)
 				req=parsed_dic["req"]
 				res, connection, sc = req_handler(parsed_dic, data)
-				print(res)
 				conn.sendall(res)
 
 				imp_func.log_dump(addr[0],req, sc, response.ld ,logfile=lfile)

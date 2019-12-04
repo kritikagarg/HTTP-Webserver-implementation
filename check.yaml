@@ -1,5 +1,5 @@
-Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531
-log_dir: /home/kgarg/classwork/fall19/webserverDesign/A4/cs531/logs/
+Root_DIR: /home/kgarg/classwork/fall19/webserverDesign/A5/cs531
+log_dir: /home/kgarg/classwork/fall19/webserverDesign/A5/cs531/logs/
 log_file: access.log
 Auth: WeMustProtectThisHouse!
 priv_key: "Key to Universal truth"
@@ -25,21 +25,40 @@ charset_encoding:
 
 methods:
  GET:
+  c_payload: False
   payload: True
   content_length: True
   echo: False
  HEAD:
+  c_payload: False
   payload: False
   content_length: True
   echo: False
  OPTIONS:
+  c_payload: False
   payload: False
   content_length: False
   echo: False 
  TRACE:
+  c_payload: False
   payload: True
   content_length: True
   echo: True 
+ DELETE:
+  c_payload: False
+  payload: False
+  content_length: False
+  echo: False 
+ PUT:
+  c_payload: True
+  payload: True
+  content_length: True
+  echo: False 
+ POST:
+  c_payload: False
+  payload: True
+  content_length: True
+  echo: False 
 
 reqheaders:
 - host
@@ -58,9 +77,12 @@ reqheaders:
 - if-range
 - referer
 - authorization
+- content-type
+- content-length
 
 status_code:
   200: OK
+  201: Created
   206: Partial Content
   300: Multiple Choice
   301: Moved Permanently 
@@ -70,9 +92,13 @@ status_code:
   401: Unauthorized
   403: Forbidden
   404: Not Found
+  405: Method Not Allowed
   406: Not Acceptable
   408: Request Timeout
+  411: Length Required
   412: Precondition Failed
+  413: Request Entity Too Large
+  414: Request-URI Too Long
   416: Range Not Satisfiable
   500: Internal Server Error
   501: Not Implemented
