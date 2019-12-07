@@ -29,7 +29,10 @@ def req_handler(parsed_dic,orignal_msg):
 		#print(loc)
 		connection= imp_func.connect(req)
 	res = response.response_handler(sc, req, orignal_msg, connection, allow, loc, ndic, content, auth_dic)
-	#print(res)
+
+	# if sc ==200 and method in {'GET', 'POST'} and if ext=='cgi':
+	# cgi_res=handle_cgi(res, content)
+
 	return res, connection, sc 
 
 def client_handler(conn,addr):
@@ -57,6 +60,7 @@ def client_handler(conn,addr):
 				parsed_dic=parser.request_parser(data)
 				req=parsed_dic["req"]
 				res, connection, sc = req_handler(parsed_dic, data)
+				print(req)
 				print(res)
 				conn.sendall(res)
 

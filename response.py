@@ -28,16 +28,16 @@ def res_object(res_headers, sc , encode=False):
 
 def chunking(payload):
 	payload=payload.decode()
-	chunks=payload.split('\n')
+	chunks=payload.splitlines()
 	p=[]
-	for i in zip(chunks[0::2], chunks[1::2]): 
-		chunk="\r\n".join(i)
+	for i in range(0, len(chunks), 2): 
+		chunk=chunks[i: i + 2]
+		chunk="\r\n".join(chunk)
 		len_chunk=hex(len(chunk))[2:]
-		p.append(f"{len_chunk}\r\n{chunk}\r\n")
+		p.append("\r\n".join([len_chunk, chunk]))
 
-	payload="\r\n".join(p)+"0\r\n\r\n"
+	payload="\r\n".join(p) + f"\r\n{hex(len(''))[2:]}\r\n{''}\r\n"
 	return(str.encode(payload))
-
 
 
 def response_handler(sc, req, orignal_msg, connection, allow, loc, ndic, content, auth_dic):
@@ -139,6 +139,6 @@ def response_handler(sc, req, orignal_msg, connection, allow, loc, ndic, content
 	ld["content_length"] = content_length
 	if payload and method!='HEAD':
 		res = res + payload
-	#print(res)
+	#print (res)
 	return res
 
