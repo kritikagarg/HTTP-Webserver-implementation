@@ -1,8 +1,8 @@
 import os
 import re
 
-import imp_func
-import path_checker, conditional, partial_check, authorize, unsafe, cgi_file
+from . import imp_func
+from . import path_checker, conditional, partial_check, authorize, unsafe, cgi_file
 
 main_dict = imp_func.main_dict
 

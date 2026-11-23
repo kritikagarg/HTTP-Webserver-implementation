@@ -35,7 +35,7 @@ reworked for security and standards conformance.
 
 ```bash
 pip install -r requirements.txt
-python server.py 127.0.0.1 8080        # serves ./www by default
+python -m pyhttpd 127.0.0.1 8080       # serves ./www by default
 ```
 
 Or with Docker:
@@ -61,9 +61,11 @@ listing, negotiation, a redirect, a CGI script, and a Basic-auth area
 | `MAX_HEADER_BYTES` | `16384` | Header block size limit (431 above it) |
 | `MAX_BODY_BYTES` | `10485760` | Request body size limit (413 above it) |
 | `CGI_TIMEOUT` | `10` | Seconds before a CGI script is stopped |
+| `CONFIG_DIR` | `pyhttpd/config` | Directory containing `check.yaml` and `redirect.yaml` |
 
-`check.yaml` holds protocol data (status codes, MIME types, supported methods),
-and `redirect.yaml` holds redirect rules.
+`pyhttpd/config/check.yaml` holds protocol data (status codes, MIME types,
+supported methods), and `pyhttpd/config/redirect.yaml` holds redirect rules. Set
+`CONFIG_DIR` to use your own copies of both files.
 
 ### Protection files
 
@@ -92,21 +94,31 @@ security cases above: path traversal, unauthenticated writes, request smuggling,
 oversized messages, slow clients, pipelining, concurrent range requests and
 Digest replays.
 
-## Code layout
+## Project layout
 
-| File | Role |
-|---|---|
-| `server.py` | Socket server, connection loop, keep-alive and pipelining |
-| `parser.py` | Message framing and request parsing |
-| `req_checker.py` | Validates the request and runs the checks in order |
-| `imp_func.py` | Configuration, path resolution, logging |
-| `fs.py` | File access, including in-memory directory listings |
-| `authorize.py` | Protection files, Basic and Digest auth |
-| `path_checker.py` | Redirects and existence checks |
-| `nego.py` | Content negotiation |
-| `conditional.py`, `e_tag.py` | Conditional requests and ETags |
-| `partial_check.py` | Range requests |
-| `unsafe.py` | PUT and DELETE |
-| `cgi_file.py` | CGI execution |
-| `response.py`, `res_functions.py` | Building responses |
-| `direc_list.py` | Directory listing HTML |
+```
+pyhttpd/                 the server package (run with: python -m pyhttpd)
+├── __main__.py          entry point
+├── server.py            socket server, connection loop, keep-alive and pipelining
+├── parser.py            message framing and request parsing
+├── req_checker.py       validates the request and runs the checks in order
+├── imp_func.py          configuration, path resolution, logging
+├── fs.py                file access, including in-memory directory listings
+├── authorize.py         protection files, Basic and Digest auth
+├── path_checker.py      redirects and existence checks
+├── nego.py              content negotiation
+├── conditional.py       conditional requests
+├── e_tag.py             ETags
+├── partial_check.py     range requests
+├── unsafe.py            PUT and DELETE
+├── cgi_file.py          CGI execution
+├── response.py          building responses
+├── res_functions.py     response helpers (MIME types, content attributes)
+├── direc_list.py        directory listing HTML
+├── config/              check.yaml (protocol data), redirect.yaml (redirect rules)
+└── templates/           HTML templates for listings and error pages
+www/                     sample document root
+tests/                   end-to-end test suite
+logs/                    access log (created at runtime)
+Dockerfile, requirements.txt
+```

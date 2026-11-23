@@ -19,8 +19,8 @@ import secrets
 import threading
 from time import time
 
-import e_tag
-import imp_func
+from . import e_tag
+from . import imp_func
 
 docroot = imp_func.docroot
 PROTECT_FILE = imp_func.protect_file

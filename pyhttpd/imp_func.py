@@ -7,7 +7,9 @@ from urllib.parse import urlparse, unquote
 
 import yaml
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))          # the pyhttpd package
+PROJECT_DIR = os.path.dirname(BASE_DIR)                          # repository root
+CONFIG_DIR = os.getenv("CONFIG_DIR", os.path.join(BASE_DIR, "config"))
 
 # Virtual URI that serves the access log.
 virtual_uri = "/.well-known/access.log"
@@ -22,15 +24,15 @@ class Forbidden(Exception):
 
 
 def load_yaml(config='check.yaml'):
-    with open(os.path.join(BASE_DIR, config), 'r') as f:
+    with open(os.path.join(CONFIG_DIR, config), 'r') as f:
         return yaml.safe_load(f)
 
 
 main_dict = load_yaml()
 
 # Paths and secrets come from the environment; check.yaml only holds protocol data.
-docroot = os.path.realpath(os.getenv("DOCROOT", os.path.join(BASE_DIR, "www")))
-log_dir = os.getenv("LOG_DIR", os.path.join(BASE_DIR, "logs"))
+docroot = os.path.realpath(os.getenv("DOCROOT", os.path.join(PROJECT_DIR, "www")))
+log_dir = os.getenv("LOG_DIR", os.path.join(PROJECT_DIR, "logs"))
 log_path = os.path.join(log_dir, main_dict['log_file'])
 protect_file = os.getenv("PROTECT_FILE", main_dict['protect_file'])
 

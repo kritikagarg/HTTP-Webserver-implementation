@@ -2,7 +2,7 @@ import os
 import time
 from wsgiref.handlers import format_date_time
 
-import imp_func, res_functions, e_tag, partial_check, fs, cgi_file
+from . import imp_func, res_functions, e_tag, partial_check, fs, cgi_file
 
 Server = "kitkat.2.0"
 

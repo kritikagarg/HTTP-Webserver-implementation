@@ -5,8 +5,8 @@ written into the served directory as a temporary file.
 """
 import os
 
-import imp_func
-import direc_list
+from . import imp_func
+from . import direc_list
 
 
 def is_listing(path):

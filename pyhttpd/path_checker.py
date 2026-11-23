@@ -1,5 +1,5 @@
 import os
-import imp_func, nego, fs
+from . import imp_func, nego, fs
 import re
 
 r_config=imp_func.load_yaml('redirect.yaml')

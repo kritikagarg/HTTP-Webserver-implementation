@@ -1,5 +1,5 @@
-import imp_func
-import fs
+from . import imp_func
+from . import fs
 
 main_dict=imp_func.load_yaml()	
 method_dict=main_dict['methods']  #method properties

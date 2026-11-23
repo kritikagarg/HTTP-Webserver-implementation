@@ -2,7 +2,7 @@ from datetime import datetime
 from wsgiref.handlers import format_date_time
 from dateutil.parser import parse
 import os
-import e_tag, imp_func, fs
+from . import e_tag, imp_func, fs
 
 
 def valid_date(date_text):

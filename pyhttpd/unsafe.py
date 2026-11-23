@@ -2,7 +2,7 @@
 import os
 import tempfile
 
-import fs
+from . import fs
 
 
 def put(content, client_payload):

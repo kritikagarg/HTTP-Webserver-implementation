@@ -1,6 +1,6 @@
 import hashlib
 
-import fs
+from . import fs
 
 
 def gen_etag(content):

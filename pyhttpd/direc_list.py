@@ -6,7 +6,7 @@ from urllib.parse import quote
 
 import jinja2
 
-import imp_func
+from . import imp_func
 
 
 def get_path(path):

@@ -1,6 +1,6 @@
 import html
 import os
-import res_functions, imp_func
+from . import res_functions, imp_func
 
 ACCEPT_HEADERS = ('accept', 'accept-language', 'accept-charset', 'accept-encoding')
 

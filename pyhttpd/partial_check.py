@@ -5,7 +5,7 @@ dict, so concurrent requests can't overwrite each other's range.
 """
 import re
 
-import fs
+from . import fs
 
 
 def parse_range(req):

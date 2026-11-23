@@ -54,8 +54,8 @@ def server(tmp_path_factory):
 
     port = free_port()
     env = dict(os.environ, DOCROOT=str(docroot), LOG_DIR=str(base / "logs"),
-               NONCE_SECRET="test-secret", MAX_BODY_BYTES="65536")
-    proc = subprocess.Popen([sys.executable, os.path.join(ROOT, "server.py"), "127.0.0.1", str(port)],
+               NONCE_SECRET="test-secret", MAX_BODY_BYTES="65536", PYTHONPATH=ROOT)
+    proc = subprocess.Popen([sys.executable, "-m", "pyhttpd", "127.0.0.1", str(port)],
                             cwd=str(base), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for _ in range(50):
         try:

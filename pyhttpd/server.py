@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Threaded HTTP/1.1 server: one thread per connection, persistent and pipelined requests."""
 import os
 import socket
@@ -6,14 +5,7 @@ import sys
 import threading
 import traceback
 
-import parser, req_checker, imp_func, response
-
-HOST = '0.0.0.0'
-PORT = 8080
-if len(sys.argv) > 1:
-    HOST = sys.argv[1]
-if len(sys.argv) > 2:
-    PORT = int(sys.argv[2])
+from . import parser, req_checker, imp_func, response
 
 TIMEOUT = float(os.getenv("KEEPALIVE_TIMEOUT", imp_func.main_dict['timeout']))
 
@@ -93,12 +85,16 @@ def client_handler(conn, addr, logfile):
         conn.close()
 
 
-def main():
+def main(argv=None):
+    """Usage: python -m pyhttpd [HOST] [PORT]   (defaults: 0.0.0.0 8080)"""
+    argv = sys.argv[1:] if argv is None else argv
+    host = argv[0] if len(argv) > 0 else '0.0.0.0'
+    port = int(argv[1]) if len(argv) > 1 else 8080
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((HOST, PORT))
+    s.bind((host, port))
     s.listen()
-    print(f"Listening on {HOST}:{PORT} (docroot {imp_func.docroot})", flush=True)
+    print(f"Listening on {host}:{port} (docroot {imp_func.docroot})", flush=True)
     os.makedirs(os.path.dirname(imp_func.log_path), exist_ok=True)
     lfile = open(imp_func.log_path, 'a', buffering=1)
     try:
@@ -110,7 +106,3 @@ def main():
     finally:
         s.close()
         lfile.close()
-
-
-if __name__ == "__main__":
-    main()
