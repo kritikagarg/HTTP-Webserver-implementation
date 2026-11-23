@@ -1,8 +1,8 @@
+import html
 import os
-import mimetypes
 import res_functions, imp_func
 
-big_d={}
+ACCEPT_HEADERS = ('accept', 'accept-language', 'accept-charset', 'accept-encoding')
 
 def get_fileList(f_name, f_path):
 	fileList=[]
@@ -30,7 +30,8 @@ def get_fs(inp):
 	for f in inp:
 		ftype,fname,size=f
 		al.append(f'\u007b"{fname}" 1 \u007btype {ftype}\u007d \u007blength {size}\u007d\u007d')
-		ml.append(f'<li><a href="{fname}">{fname}</a> , type {ftype}')
+		safe=html.escape(fname)
+		ml.append(f'<li><a href="{safe}">{safe}</a> , type {html.escape(str(ftype))}')
 	fs=(", ".join(al))
 	mid=('\n'.join(ml))
 	return fs, mid
@@ -43,27 +44,33 @@ def tie(sa):
 
 def read_accept(a):
 	sa=[]
-	a=a.split(', ')
-	for i in a:
-		v,k=i.split('; ')
-		sa.append((float(k.strip('q=')),v))
+	for i in a.split(','):
+		parts=[p.strip() for p in i.split(';')]
+		v=parts[0]
+		q=1.0
+		for p in parts[1:]:
+			if p.startswith('q='):
+				try:
+					q=float(p[2:])
+				except ValueError:
+					q=0.0
+		if v:
+			sa.append((q,v))
 	sa=sorted(sa, reverse=True)
-	print(sa)
 	return sa
 
 
 #Vary: "All the Accept related headers"
 def con_negotiate(content,req):
 	f_name=os.path.basename(content)
-	f_path=content.strip(f_name)
+	f_path=os.path.dirname(content)
 	ndic={}
 	fileList=get_fileList(f_name, f_path)
-	print(fileList)
 	if fileList:
 		sc=300
 		fs, mid=get_fs(fileList)
-		big_d["mid"]=get_mid(mid)
-		val=imp_func.get_reqheader_value("accept", req)
+		ndic['_variants_html']=get_mid(mid)   # body for 300/406; removed before headers are sent
+		val=[tup for tup in req[1:] if tup[0] in ACCEPT_HEADERS]
 		if not val:
 			ndic.update({'Alternates':fs})
 		if val:
@@ -72,7 +79,6 @@ def con_negotiate(content,req):
 				a=tup[1]
 				sa=read_accept(a)
 				if tie(sa):
-					print('TIE')
 					sc=300
 					ndic.update({'Alternates':fs})
 					break
@@ -85,8 +91,6 @@ def con_negotiate(content,req):
 							atype=atype.strip('*')
 
 						m=[u for u in fileList if atype in u[0]]
-						print(atype)
-						print(m)
 						if m:
 							if len(m)==1:
 								sc=200

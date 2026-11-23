@@ -1,8 +1,5 @@
-import os
-import os.path
-from os import path
 import imp_func
-import direc_list
+import fs
 
 main_dict=imp_func.load_yaml()	
 method_dict=main_dict['methods']  #method properties
@@ -30,9 +27,9 @@ def content_attribute(method, content, orignal_msg):
 		content_length=len(payload)
 	else:
 		if prop_dict['payload']:
-			payload=open(content, "rb").read()
+			payload=fs.read(content)
 		if prop_dict['content_length']:
-			content_length=os.path.getsize(content)	
+			content_length=fs.size(content)	
 	return payload , str(content_length)
 
 
@@ -42,16 +39,16 @@ def find_ext(content):
 	lang,comp=None,None
 	if extension in cmp_dic:
 		comp=cmp_dic[extension]
-		content=content.strip('.'+extension)
+		content=content.removesuffix('.'+extension)
 		extension=content.split('.')[-1]
 
 	if extension in char_dic:
 		charset=char_dic[extension]
-		content=content.strip('.'+extension)
+		content=content.removesuffix('.'+extension)
 		extension=content.split('.')[-1]
 	if extension in lang_dic:
 		lang=extension
-		content=content.strip('.'+lang)
+		content=content.removesuffix('.'+lang)
 		extension=content.split('.')[-1]
 	return comp, extension, lang, charset
 

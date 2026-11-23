@@ -1,72 +1,55 @@
+"""Byte-range requests (single range).
+
+The parsed range is returned to the caller rather than stored in a module-level
+dict, so concurrent requests can't overwrite each other's range.
+"""
 import re
-import os.path as op
-import imp_func
-main_dict=imp_func.main_dict
 
-rl={} #range_dictionary
-
-def is_ascen(l):
-	if sorted(l) == l:
-		return True
+import fs
 
 
-def is_range(req):
-	#print(req)
-	is_range=False
-	for tup in req:
-		if tup[0]=="range":
-			r_tup=tup[1]	                   
-			try:
-				unit,r_value = r_tup.split('=') 
-				r_value = [i for i in re.split(", |(\d+)-" ,r_value)]        	#multiple ranges
-				r_value = [int(i) for i in filter(None, r_value)]
-				if 	is_ascen(r_value):#check if acsending order
-					rl.update(dict(unit=unit,r_value=r_value))
-					is_range = True
-			except:
-				pass 
-	return is_range
+def parse_range(req):
+    """Return (start, end) from a 'Range: bytes=...' header, or None.
 
+    end is None for open-ended ranges ("100-"); start is negative for suffix
+    ranges ("-100"). Multiple or malformed ranges return None, and the server
+    then ignores the header and sends the full representation (allowed by RFC 9110 14.2).
+    """
+    for name, value in req[1:]:
+        if name != "range":
+            continue
+        unit, _, spec = value.partition("=")
+        if unit.strip().lower() != "bytes" or "," in spec:
+            return None
+        spec = spec.strip()
+        m = re.fullmatch(r"(\d+)-(\d*)", spec)
+        if m:
+            start = int(m[1])
+            end = int(m[2]) if m[2] else None
+            if end is not None and end < start:
+                return None
+            return start, end
+        m = re.fullmatch(r"-(\d+)", spec)
+        if m and int(m[1]) > 0:
+            return -int(m[1]), None
+        return None
+    return None
 
-def get_range(inp):
-	r_value=inp
-	n=len(r_value)
-	if n==1:
-		r_value.append(None)
-	#if n==2:  #list of ranges 
-	start, end = r_value
-	return start, end
 
 def check_partial(req):
-	sc=200
-	if is_range(req):
-			sc=206
-	return sc
+    return 206 if parse_range(req) else 200
 
-def partial_payload(content):
-	f=open(content, 'rb')
-	start, end= get_range(rl["r_value"])
-	if end:
-		f.seek(start)
-		diff=end-start+1
-		payload=f.read(diff)
-	else:
-		if start < 0 :
-			start=op.getsize(content)+start
-		f.seek(start)
-		payload=f.read()
-		end=start+len(payload)-1
-	rl.update(dict(start=start, end=end))	
-	return payload
 
-def partial_content(method, content):
-	#print(rl)
-	payload=None
-	content_length=0
-	payload = partial_payload(content)
-	content_length = len(payload)
-	size=op.getsize(content)
-	content_range = f"{rl['unit']} {rl['start']}-{rl['end']}/{size}"
-	if content_length==0:
-		content_range=f"{rl['unit']} */{size}"
-	return payload, content_length, content_range
+def partial_content(method, content, req):
+    """Return (payload, content_length, content_range, satisfiable)."""
+    size = fs.size(content)
+    start, end = parse_range(req)
+    if start < 0:
+        start = max(size + start, 0)
+        end = size - 1
+    elif end is None or end >= size:
+        end = size - 1
+    if size == 0 or start >= size:
+        return b"", 0, f"bytes */{size}", False
+    data = fs.read(content)[start:end + 1]
+    return data, len(data), f"bytes {start}-{end}/{size}", True

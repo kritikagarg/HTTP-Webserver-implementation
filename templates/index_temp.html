@@ -16,12 +16,12 @@
   <tr><th colspan="4"><hr></th></tr>
   <tr>
   	<td valign="top"><img src="icons/back.gif" alt="[PARENTDIR]"></td>
-  	<td><a href={{parent}}>Parent Directory</a></td><td>&nbsp;</td><td align="right"></td>
+  	<td><a href="{{parent}}">Parent Directory</a></td><td>&nbsp;</td><td align="right"></td>
   </tr>
   {% for item in folder %}
   <tr>
-  	<td valign="top"><img src={{item.icon}} alt={{item.alt}}>
-    <td id="id01" ><a href={{item.link}}> {{item.name}} </a></td>
+  	<td valign="top"><img src="{{item.icon}}" alt="{{item.alt}}">
+    <td id="id01" ><a href="{{item.link}}"> {{item.name}} </a></td>
     <td> {{item.time}} </td>
     <td> {{item.size}} </td>
   </tr>

@@ -1,5 +1,5 @@
 import os
-import imp_func, nego
+import imp_func, nego, fs
 import re
 
 r_config=imp_func.load_yaml('redirect.yaml')
@@ -15,7 +15,7 @@ def check_config_for_path(content):
 
 def check_path_existence(content,c_path, req):
 	loc,ndic=None,None
-	exist=os.path.exists(os.path.expanduser(os.path.normpath(content)))
+	exist=fs.exists(content)
 	if exist:
 		sc,loc=check_if_directory(content,c_path)
 	else: 
@@ -27,9 +27,7 @@ def check_if_directory(content,c_path):
 	sc=200
 	loc=None
 	if os.path.isdir(content):                  
-		print("It's a directory:"+content+"  "+content[:1])           #RENDER IMAGE.HTML
 		if content[-1:] != '/':
-			print("no back slash at end")
 			sc=301
 			loc=c_path+'/'
 	return sc, loc

@@ -1,39 +1,41 @@
-import os, imp_func
+"""PUT and DELETE. Authorization is checked by authorize.py before these run."""
+import os
+import tempfile
 
-
-def create_file(content, client_payload):
-	f=open(content,'wb')
-	f.write(client_payload)
-	print("Created")
-	f.close()
+import fs
 
 
 def put(content, client_payload):
-	exist=os.path.isfile(os.path.expanduser(os.path.normpath(content)))
-	create_file(content, client_payload)	
-	if exist:
-		sc=200
-	else:
-		sc=201
-	return sc
+    if content.endswith('/') or fs.is_listing(content) or os.path.isdir(content):
+        return 405
+    parent = os.path.dirname(content)
+    if not os.path.isdir(parent):
+        return 409  # Conflict: the parent collection doesn't exist
+    existed = os.path.isfile(content)
+    # Write to a temp file and rename, so a concurrent GET never sees a half-written file.
+    fd, tmp = tempfile.mkstemp(dir=parent, prefix=".put-")
+    try:
+        with os.fdopen(fd, 'wb') as f:
+            f.write(client_payload or b"")
+        os.replace(tmp, content)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+    return 200 if existed else 201
 
 
 def delete(content):
-	exist=os.path.isfile(os.path.expanduser(os.path.normpath(content)))
-	if exist:
-		os.remove(content)
-		sc=200
-		#payload="<html>\r\n<body>\r\n<h1>File deleted.</h1>\r\n</body>\r\n</html>"
-	else:
-		sc=405
-	return sc
+    if os.path.isfile(content):
+        os.remove(content)
+        return 200
+    return 404
 
 
-def unsafe_method_handler(req, client_payload):
- 	method=req[0][0]
- 	content,c_path=imp_func.get_content(req)
- 	if method == "DELETE":
- 		sc=delete(content)
- 	if method == "PUT":
- 		sc=put(content, client_payload)
- 	return sc
+def unsafe_method_handler(req, client_payload, content):
+    method = req[0][0]
+    if method == "DELETE":
+        return delete(content)
+    if method == "PUT":
+        return put(content, client_payload)
+    return 405

@@ -1,57 +1,52 @@
+"""Render directory listings as HTML (in memory, never written to disk)."""
 import os
 import os.path
-import jinja2
 from datetime import datetime
+from urllib.parse import quote
+
+import jinja2
+
 import imp_func
+
 
 def get_path(path):
     if path.endswith('/'):
         path = path[:-1]
-    return(path)
+    return path
+
 
 def get_time(t):
     return datetime.fromtimestamp(t).strftime("%Y-%m-%d  %H:%M")
 
-def get_display_info(path):
-    pp=path.replace(imp_func.docroot,'.')
-    dis=dict(parent=path, p_name=os.path.basename(path), folder=[])
-    with os.scandir(path) as it:
-        for item in it:
-            fname=item.name
-            if item.is_file():
-                icon="icons/file.gif"
-                alt="[]"
-                #link=os.path.join(path,fname)
 
+def get_display_info(path):
+    # Links are relative to the listing URL (which always ends in '/'), so the
+    # server's filesystem layout never appears in the page.
+    dis = dict(parent="../", p_name=os.path.basename(path), folder=[])
+    with os.scandir(path) as it:
+        for item in sorted(it, key=lambda e: e.name):
+            fname = item.name
+            if fname == imp_func.protect_file:
+                continue  # never advertise the password file
             if item.is_dir():
-                icon="icons/folder.gif"
-                alt="[DIR]"
-                #new_path=os.path.join(path,fname)
-                #link=dir_list(new_path)
-            link=os.path.join(path,fname)
-            link=link.replace(imp_func.docroot,'.')
+                icon, alt, link = "icons/folder.gif", "[DIR]", quote(fname) + "/"
+            else:
+                icon, alt, link = "icons/file.gif", "[]", quote(fname)
             info = item.stat()
-            item_info = dict(name=fname, size=info.st_size, time=get_time(info.st_mtime), link=link, icon=icon, alt=alt)
-            dis["folder"].append(item_info)
+            dis["folder"].append(dict(name=fname, size=info.st_size,
+                                      time=get_time(info.st_mtime), link=link,
+                                      icon=icon, alt=alt))
     return dis
 
 
-# def dir_list(path):
-#     return template.render(get_display_info(get_path(path)))
-
-env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath='templates/'))
-
+# autoescape: file names are untrusted and must not inject HTML into the page.
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(searchpath=os.path.join(imp_func.BASE_DIR, 'templates')),
+    autoescape=True,
+)
 template = env.get_template('index_temp.html')
 
-#path ='/home/kgarg/classwork/fall19/webserverDesign/A2/cs531/a2-test/'
-#p_name=os.path.basename(get_path(path))
+
 def dir_list(path):
-    output=template.render(get_display_info(get_path(path)))
-    f=open(path+"tmpDL.html", 'w')
-    f.write(output)
-
-
-#output=dir_list(path)
-
-#f=open("templates/"+p_name+".html", 'w')
-#f.write(output)
+    """Return the HTML listing for directory `path`."""
+    return template.render(get_display_info(get_path(path)))
