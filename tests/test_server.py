@@ -205,6 +205,7 @@ def test_authorized_put_and_delete(server):
     assert request(server, "PUT", "/private/upload.txt", {"Authorization": BASIC}, b"v1")[0] == 201
     assert request(server, "PUT", "/private/upload.txt", {"Authorization": BASIC}, b"v2")[0] == 200
     assert target.read_bytes() == b"v2"
+    assert target.stat().st_mode & 0o777 == 0o644
     assert request(server, "DELETE", "/private/upload.txt")[0] == 401
     assert target.exists()
     assert request(server, "DELETE", "/private/upload.txt", {"Authorization": BASIC})[0] == 200

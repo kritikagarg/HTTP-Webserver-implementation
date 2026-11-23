@@ -12,11 +12,14 @@ def put(content, client_payload):
     if not os.path.isdir(parent):
         return 409  # Conflict: the parent collection doesn't exist
     existed = os.path.isfile(content)
+    # Keep an existing file's permissions; new files get the usual 0644.
+    mode = os.stat(content).st_mode & 0o777 if existed else 0o644
     # Write to a temp file and rename, so a concurrent GET never sees a half-written file.
     fd, tmp = tempfile.mkstemp(dir=parent, prefix=".put-")
     try:
         with os.fdopen(fd, 'wb') as f:
             f.write(client_payload or b"")
+        os.chmod(tmp, mode)  # mkstemp creates files as 0600
         os.replace(tmp, content)
     except BaseException:
         if os.path.exists(tmp):
