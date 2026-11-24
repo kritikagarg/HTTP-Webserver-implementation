@@ -1,0 +1,6 @@
+# Redirect rules: regex on the request path -> [status, replacement].
+# Example rules for the sample site in www/.
+^/old-page\.html$:
+ [301, "/index.html"]
+^/docs/v[0-9]+/(.*)$:
+ [302, "/docs/latest/\\1"]

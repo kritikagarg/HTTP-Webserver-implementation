@@ -1,22 +1,23 @@
-FROM python:3.7
+FROM python:3.12-slim
 
-LABEL maintainer="Kritika Garg <@kritikagarg7>"
+LABEL maintainer="Kritika Garg"
 
-ENV  PYTHONUNBUFFERED=1
-ENV  DOCROOT=/var/www/cs531server
-ENV  LOG_DIR=/var/www/cs531server/logs/
-
-ADD  sample/* $DOCROOT/
-ADD  logs/* $LOG_DIR/
+ENV PYTHONUNBUFFERED=1 \
+    DOCROOT=/var/www/html \
+    LOG_DIR=/var/log/httpd
 
 WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/
+COPY pyhttpd/ /app/pyhttpd/
+COPY www/ /var/www/html/
 
-RUN pip install -r requirements.txt
+# Run as an unprivileged user; it owns the docroot so authorized PUT/DELETE work.
+RUN useradd --system --no-create-home httpd \
+    && mkdir -p /var/log/httpd \
+    && chown -R httpd /var/log/httpd /var/www/html
+USER httpd
 
-EXPOSE 80
-
-RUN chmod a+x *.py 
-
-CMD ["./server.py", "0.0.0.0", "80"]
+EXPOSE 8080
+CMD ["python", "-m", "pyhttpd", "0.0.0.0", "8080"]

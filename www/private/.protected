@@ -1,0 +1,7 @@
+# Demo protection file. Change these credentials before deploying.
+authorization-type=Basic
+realm="Demo Area"
+ALLOW-PUT
+ALLOW-DELETE
+# user:md5(password)
+demo:fe01ce2a7fbac8fafaed7c982a04e229
